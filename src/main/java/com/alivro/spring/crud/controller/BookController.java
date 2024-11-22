@@ -1,5 +1,6 @@
 package com.alivro.spring.crud.controller;
 
+import com.alivro.spring.crud.model.response.BookResponseDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -9,8 +10,8 @@ import jakarta.validation.Valid;
 
 import java.util.Optional;
 
-import com.alivro.spring.crud.services.BookService;
-import com.alivro.spring.crud.model.request.BookRequest;
+import com.alivro.spring.crud.services.IBookService;
+import com.alivro.spring.crud.model.request.BookRequestDTO;
 import com.alivro.spring.crud.model.Book;
 
 import org.slf4j.Logger;
@@ -20,7 +21,7 @@ import org.slf4j.LoggerFactory;
 @RequestMapping("/api/book")
 @CrossOrigin(origins = "http://localhost:8080")
 public class BookController {
-    private final BookService bookService;
+    private final IBookService bookService;
     private final Logger logger = LoggerFactory.getLogger(BookController.class);
 
     /**
@@ -29,73 +30,63 @@ public class BookController {
      * @param bookService
      */
     @Autowired
-    public BookController(BookService bookService) {
+    public BookController(IBookService bookService) {
         this.bookService = bookService;
     }
 
     /**
      * Endpoint para buscar un libro por su ID
      *
-     * @param   id      Identificador único del libro
-     * @return          Información del libro buscado
+     * @param id Identificador único del libro
+     * @return Información del libro buscado
      */
     @GetMapping("/find/{id}")
-    public ResponseEntity<Book> findBook(@PathVariable("id") long id) {
-        Optional<Book> book = bookService.findById(id);
+    public ResponseEntity<BookResponseDTO> findBook(@PathVariable("id") long id) {
+        BookResponseDTO foundBook = bookService.findById(id);
 
-        if(book.isEmpty()) {
-            logger.info("No se encontró ningún libro con el ID: {}", id);
+        if (foundBook == null)
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
 
-        }
-
-        logger.info("Libro encontrado");
-        return new ResponseEntity<>(book.get(), HttpStatus.OK);
+        return new ResponseEntity<>(foundBook, HttpStatus.OK);
     }
 
     /**
      * Endpoint para guardar un nuevo libro
      *
-     * @param book      Datos del libro
-     * @return          Información del libro guardado
+     * @param book Datos del libro
+     * @return Información del libro guardado
      */
     @PostMapping("/save")
-    public ResponseEntity<Book> insertBook(@Valid @RequestBody BookRequest book) {
-        Book newBook = bookService.save(book);
+    public ResponseEntity<BookResponseDTO> saveBook(@Valid @RequestBody BookRequestDTO book) {
+        BookResponseDTO savedBook = bookService.save(book);
 
-        if(newBook == null) {
-            logger.info("Libro no guardado");
+        if (savedBook == null)
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-        }
 
-        logger.info("Libro guardado correctamente");
-        return new ResponseEntity<>(newBook, HttpStatus.CREATED);
+        return new ResponseEntity<>(savedBook, HttpStatus.CREATED);
     }
 
     /**
      * Endpoint para actualizar la información de un libro
      *
-     * @param   id      Identificador único del libro
-     * @param book      Datos del libro
-     * @return          Información del libro actualizado
+     * @param id   Identificador único del libro
+     * @param book Datos del libro
+     * @return Información del libro actualizado
      */
     @PutMapping("/update/{id}")
-    public ResponseEntity<Book> updateBook(@PathVariable("id") long id, @Valid @RequestBody BookRequest book) {
-        Book updateBook = bookService.updateById(id, book);
+    public ResponseEntity<BookResponseDTO> updateBook(@PathVariable("id") long id, @Valid @RequestBody BookRequestDTO book) {
+        BookResponseDTO updatedBook = bookService.updateById(id, book);
 
-        if(updateBook == null) {
-            logger.info("No se encontró ningún libro con el ID: {}", id);
+        if (updatedBook == null)
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
 
-        logger.info("Información del libro actualizada correctamente");
-        return new ResponseEntity<>(updateBook, HttpStatus.OK);
+        return new ResponseEntity<>(updatedBook, HttpStatus.OK);
     }
 
     /**
      * Endpoint para eliminar un libro por su ID
      *
-     * @param   id      El identificador único del libro
+     * @param id El identificador único del libro
      * @return
      */
     @DeleteMapping("/delete/{id}")

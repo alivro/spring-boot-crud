@@ -10,14 +10,17 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.Size;
 
+import com.alivro.spring.crud.model.Book;
+
 import com.fasterxml.jackson.annotation.JsonFormat;
+
 import java.time.LocalDate;
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class BookRequest {
+public class BookRequestDTO {
     @NotBlank(message = "El campo título es obligatorio.")
     private String title;
 
@@ -37,4 +40,27 @@ public class BookRequest {
     @NotBlank(message = "El campo ISBN es obligatorio.")
     @Size(min = 13, max = 13, message = "El campo ISBN debe tener 13 caracteres.")
     private String isbn;
+
+    public static Book requestDTOtoEntity(long id, BookRequestDTO book) {
+        return Book.builder()
+                .id(id)
+                .title(book.getTitle())
+                .author(book.getAuthor())
+                .totalPages(book.getTotalPages())
+                .publisher(book.getPublisher())
+                .publishedDate(book.getPublishedDate())
+                .isbn(book.getIsbn())
+                .build();
+    }
+
+    public static Book requestDTOtoEntity(BookRequestDTO book) {
+        return Book.builder()
+                .title(book.getTitle())
+                .author(book.getAuthor())
+                .totalPages(book.getTotalPages())
+                .publisher(book.getPublisher())
+                .publishedDate(book.getPublishedDate())
+                .isbn(book.getIsbn())
+                .build();
+    }
 }
