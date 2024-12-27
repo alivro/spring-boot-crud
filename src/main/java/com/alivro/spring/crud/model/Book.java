@@ -1,13 +1,11 @@
 package com.alivro.spring.crud.model;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.persistence.*;
-
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
-import com.fasterxml.jackson.annotation.JsonFormat;
 
 import java.time.LocalDate;
 
@@ -16,34 +14,30 @@ import java.time.LocalDate;
 @NoArgsConstructor
 @Builder
 @Entity
-@SequenceGenerator(
-        name = "bookSeq",
-        sequenceName = "BOOK_SEQ",
-        initialValue = 1000,
-        allocationSize = 1
-)
 @Table(name = "book")
 public class Book {
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "bookSeq")
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "bookGen")
+    @SequenceGenerator(name = "bookGen", sequenceName = "book_seq", allocationSize = 1)
+    @Column(name = "id")
     private long id;
 
-    @Column(name = "title", nullable = false, unique = false)
+    @Column(name = "title")
     private String title;
 
-    @Column(name = "author", length = 100, nullable = false, unique = false)
+    @Column(name = "author")
     private String author;
 
-    @Column(name = "total_pages", nullable = false, unique = false)
+    @Column(name = "total_pages")
     private int totalPages;
 
-    @Column(name = "publisher", length = 50, nullable = false, unique = false)
+    @Column(name = "publisher")
     private String publisher;
 
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
-    @Column(name = "published_date", nullable = false, unique = false)
+    @Column(name = "published_date")
     private LocalDate publishedDate;
 
-    @Column(name = "isbn", length = 13, nullable = false, unique = true)
+    @Column(name = "isbn")
     private String isbn;
 }
