@@ -16,8 +16,11 @@ public class BookResponseDTO {
     // Identificador único del libro
     private long id;
 
-    // Titulo del libro
+    // Título del libro
     private String title;
+
+    // Subtítulo del libro
+    private String subtitle;
 
     // Autor del libro
     private String author;
@@ -31,18 +34,29 @@ public class BookResponseDTO {
     // Fecha de publicación del libro
     private LocalDate publishedDate;
 
-    // Identificador internacional único del libro
-    private String isbn;
+    // Identificador internacional único del libro (13 dígitos)
+    private String isbn13;
 
+    // Identificador internacional único del libro (10 dígitos)
+    private String isbn10;
+
+    /**
+     * Convierte un objeto Entity en un objeto ResponseDTO
+     *
+     * @param book Información del libro
+     * @return Representación ResponseDTO de la información del libro
+     */
     public static BookResponseDTO entityToResponseDTO(Book book) {
         return BookResponseDTO.builder()
                 .id(book.getId())
                 .title(book.getTitle())
+                .subtitle(book.getSubtitle())
                 .author(book.getAuthor())
                 .totalPages(book.getTotalPages())
                 .publisher(book.getPublisher())
                 .publishedDate(book.getPublishedDate())
-                .isbn(book.getIsbn())
+                .isbn13(book.getIsbn13())
+                .isbn10(book.getIsbn10())
                 .build();
     }
 }

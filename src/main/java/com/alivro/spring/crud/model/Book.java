@@ -12,7 +12,7 @@ import java.time.LocalDate;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-@Builder
+@Builder(toBuilder=true)
 @Entity
 @Table(name = "book")
 public class Book {
@@ -24,6 +24,9 @@ public class Book {
 
     @Column(name = "title")
     private String title;
+
+    @Column(name = "subtitle")
+    private String subtitle;
 
     @Column(name = "author")
     private String author;
@@ -38,6 +41,9 @@ public class Book {
     @Column(name = "published_date")
     private LocalDate publishedDate;
 
-    @Column(name = "isbn")
-    private String isbn;
+    @Column(name = "isbn_13")
+    private String isbn13;
+
+    @Column(name = "isbn_10")
+    private String isbn10;
 }

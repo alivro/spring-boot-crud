@@ -52,7 +52,7 @@ public class BookControllerTest {
                 .totalPages(352)
                 .publisher("Simon & Schuster")
                 .publishedDate(LocalDate.parse("2008-05-06"))
-                .isbn("9781416561460")
+                .isbn13("9781416561460")
                 .build();
 
         bookRequestTwenty = BookRequestDTO.builder()
@@ -61,7 +61,7 @@ public class BookControllerTest {
                 .totalPages(363)
                 .publisher("Puffin Classics")
                 .publishedDate(LocalDate.parse("2018-03-01"))
-                .isbn("9780141377586")
+                .isbn13("9780141377586")
                 .build();
 
         bookResponseTwenty = requestToResponse(2L, bookRequestTwenty);
@@ -72,7 +72,7 @@ public class BookControllerTest {
                 .totalPages(336)
                 .publisher("Puffin Classics")
                 .publishedDate(LocalDate.parse("2018-03-01"))
-                .isbn("9780141377568")
+                .isbn13("9780141377568")
                 .build();
 
         bookResponseUpdateTwenty = requestToResponse(2L, bookRequestUpdateTwenty);
@@ -92,7 +92,7 @@ public class BookControllerTest {
         response.andExpect(MockMvcResultMatchers.status().isOk())
                 .andExpect(MockMvcResultMatchers.jsonPath("$.title", CoreMatchers.is(bookResponseJourney.getTitle())))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.totalPages", CoreMatchers.is(bookResponseJourney.getTotalPages())))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.isbn", CoreMatchers.is(bookResponseJourney.getIsbn())));
+                .andExpect(MockMvcResultMatchers.jsonPath("$.isbn13", CoreMatchers.is(bookResponseJourney.getIsbn13())));
     }
 
     @Test
@@ -123,7 +123,7 @@ public class BookControllerTest {
         response.andExpect(MockMvcResultMatchers.status().isCreated())
                 .andExpect(MockMvcResultMatchers.jsonPath("$.title", CoreMatchers.is(bookResponseTwenty.getTitle())))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.totalPages", CoreMatchers.is(bookResponseTwenty.getTotalPages())))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.isbn", CoreMatchers.is(bookResponseTwenty.getIsbn())));
+                .andExpect(MockMvcResultMatchers.jsonPath("$.isbn13", CoreMatchers.is(bookResponseTwenty.getIsbn13())));
     }
 
     @Test
@@ -156,7 +156,7 @@ public class BookControllerTest {
         response.andExpect(MockMvcResultMatchers.status().isOk())
                 .andExpect(MockMvcResultMatchers.jsonPath("$.title", CoreMatchers.is(bookResponseUpdateTwenty.getTitle())))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.totalPages", CoreMatchers.is(bookResponseUpdateTwenty.getTotalPages())))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.isbn", CoreMatchers.is(bookResponseUpdateTwenty.getIsbn())));
+                .andExpect(MockMvcResultMatchers.jsonPath("$.isbn13", CoreMatchers.is(bookResponseUpdateTwenty.getIsbn13())));
     }
 
     @Test
@@ -197,7 +197,7 @@ public class BookControllerTest {
                 .totalPages(request.getTotalPages())
                 .publisher(request.getPublisher())
                 .publishedDate(request.getPublishedDate())
-                .isbn(request.getIsbn())
+                .isbn13(request.getIsbn13())
                 .build();
     }
 }

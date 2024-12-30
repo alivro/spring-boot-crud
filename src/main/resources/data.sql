@@ -1,4 +1,4 @@
-INSERT INTO book (id, title, author, total_pages, publisher, published_date, isbn) VALUES
+INSERT INTO book (id, title, author, total_pages, publisher, published_date, isbn_13) VALUES
   (1, '1984', 'George Orwell', 384, 'Berkley', '2003-05-06', '9780452284234'),
   (2, 'Animal Farm', 'George Orwell', 128, 'Berkley', '2003-05-06', '9780452284241'),
   (3, 'The Invisible Man', 'H. G. Wells', 208, 'Signet', '2010-10-05', '9780451531674'),

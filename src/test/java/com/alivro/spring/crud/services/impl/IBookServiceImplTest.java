@@ -45,7 +45,7 @@ public class IBookServiceImplTest {
                 .totalPages(352)
                 .publisher("Simon & Schuster")
                 .publishedDate(LocalDate.parse("2008-05-06"))
-                .isbn("9781416561460")
+                .isbn13("9781416561460")
                 .build();
 
         bookRequestTwenty = BookRequestDTO.builder()
@@ -54,7 +54,7 @@ public class IBookServiceImplTest {
                 .totalPages(363)
                 .publisher("Puffin Classics")
                 .publishedDate(LocalDate.parse("2018-03-01"))
-                .isbn("9780141377586")
+                .isbn13("9780141377586")
                 .build();
 
         bookTwenty = BookRequestDTO.requestDTOtoEntity(bookRequestTwenty);
@@ -65,7 +65,7 @@ public class IBookServiceImplTest {
                 .totalPages(336)
                 .publisher("Puffin Classics")
                 .publishedDate(LocalDate.parse("2018-03-01"))
-                .isbn("9780141377568")
+                .isbn13("9780141377568")
                 .build();
 
         bookUpdateTwenty = BookRequestDTO.requestDTOtoEntity(2L, bookRequestUpdateTwenty);
@@ -84,7 +84,7 @@ public class IBookServiceImplTest {
         assertThat(foundBook).isNotNull();
         assertThat(foundBook.getTitle()).isEqualTo("Journey to the Center of the Earth");
         assertThat(foundBook.getTotalPages()).isEqualTo(352);
-        assertThat(foundBook.getIsbn()).isEqualTo("9781416561460");
+        assertThat(foundBook.getIsbn13()).isEqualTo("9781416561460");
     }
 
     @Test
@@ -103,7 +103,7 @@ public class IBookServiceImplTest {
     @Test
     public void saveNonExistingBookReturnBookResponseDTO() {
         // Given
-        given(bookRepository.existsByIsbn(bookRequestTwenty.getIsbn())).willReturn(false);
+        given(bookRepository.existsByIsbn13(bookRequestTwenty.getIsbn13())).willReturn(false);
         given(bookRepository.save(bookTwenty)).willReturn(bookTwenty);
 
         // When
@@ -113,13 +113,13 @@ public class IBookServiceImplTest {
         assertThat(savedBook).isNotNull();
         assertThat(savedBook.getTitle()).isEqualTo("Twenty Thousand Leages Under the Sea");
         assertThat(savedBook.getTotalPages()).isEqualTo(363);
-        assertThat(savedBook.getIsbn()).isEqualTo("9780141377586");
+        assertThat(savedBook.getIsbn13()).isEqualTo("9780141377586");
     }
 
     @Test
     public void saveExistingBookReturnNull() {
         // Given
-        given(bookRepository.existsByIsbn(anyString())).willReturn(true);
+        given(bookRepository.existsByIsbn13(anyString())).willReturn(true);
 
         // When
         BookResponseDTO savedBook = bookService.save(bookRequestTwenty);
@@ -142,7 +142,7 @@ public class IBookServiceImplTest {
         assertThat(updatedBook).isNotNull();
         assertThat(updatedBook.getTitle()).isEqualTo("Twenty Thousand Leagues Under the Sea");
         assertThat(updatedBook.getTotalPages()).isEqualTo(336);
-        assertThat(updatedBook.getIsbn()).isEqualTo("9780141377568");
+        assertThat(updatedBook.getIsbn13()).isEqualTo("9780141377568");
     }
 
     @Test

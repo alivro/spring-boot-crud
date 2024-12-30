@@ -8,31 +8,31 @@ public interface IBookService {
      * Método para buscar un libro por su ID
      *
      * @param id Identificador único del libro
-     * @return El libro buscado
+     * @return Información del libro buscado
      */
-    public BookResponseDTO findById(Long id);
+    BookResponseDTO findById(Long id);
 
     /**
      * Método para guardar un nuevo libro
      *
-     * @param book Datos del libro
-     * @return El libro guardado
+     * @param book Información del libro a guardar
+     * @return Información del libro guardado
      */
-    public BookResponseDTO save(BookRequestDTO book);
+    BookResponseDTO save(BookRequestDTO book);
 
     /**
      * Método para actualizar la información de un libro
      *
      * @param id   Identificador único del libro
-     * @param book Datos del libro
-     * @return El libro actualizado
+     * @param book Información del libro a actualizar
+     * @return Información del libro actualizado
      */
-    public BookResponseDTO updateById(Long id, BookRequestDTO book);
+    BookResponseDTO updateById(Long id, BookRequestDTO book);
 
     /**
      * Método para eliminar un libro por su ID
      *
      * @param id Identificador único del libro
      */
-    public void deleteById(Long id);
+    void deleteById(Long id);
 }
