@@ -18,7 +18,10 @@ import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 
+import static org.hamcrest.Matchers.hasSize;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.BDDMockito.given;
@@ -76,6 +79,40 @@ public class BookControllerTest {
                 .build();
 
         bookResponseUpdateTwenty = requestToResponse(2L, bookRequestUpdateTwenty);
+    }
+
+    @Test
+    public void findAllBooksReturnOK() throws Exception {
+        //Given
+        List<BookResponseDTO> foundBooks = new ArrayList<>();
+        foundBooks.add(bookResponseJourney);
+        foundBooks.add(bookResponseTwenty);
+
+        given(bookService.findAll()).willReturn(foundBooks);
+
+        // When
+        ResultActions response = mockMvc.perform(get("/api/book/findAll"));
+
+        // Then
+        response.andExpect(MockMvcResultMatchers.status().isOk())
+                .andExpect(MockMvcResultMatchers.jsonPath("$.data", hasSize(2)))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.data[0].title", CoreMatchers.is(bookResponseJourney.getTitle())))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.data[1].title", CoreMatchers.is(bookResponseTwenty.getTitle())));
+    }
+
+    @Test
+    public void findNonAllBooksReturnOK() throws Exception {
+        //Given
+        List<BookResponseDTO> foundBooks = new ArrayList<>();
+
+        given(bookService.findAll()).willReturn(foundBooks);
+
+        // When
+        ResultActions response = mockMvc.perform(get("/api/book/findAll"));
+
+        // Then
+        response.andExpect(MockMvcResultMatchers.status().isOk())
+                .andExpect(MockMvcResultMatchers.jsonPath("$.data", hasSize(0)));
     }
 
     @Test

@@ -3,7 +3,16 @@ package com.alivro.spring.crud.services;
 import com.alivro.spring.crud.model.request.BookRequestDTO;
 import com.alivro.spring.crud.model.response.BookResponseDTO;
 
+import java.util.List;
+
 public interface IBookService {
+    /**
+     * Método para buscar todos los libros
+     *
+     * @return Información de todos los libros
+     */
+    List<BookResponseDTO> findAll();
+
     /**
      * Método para buscar un libro por su ID
      *

@@ -13,6 +13,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/api/book")
 @CrossOrigin(origins = "http://localhost:8080")
@@ -28,6 +30,22 @@ public class BookController {
     @Autowired
     public BookController(IBookService bookService) {
         this.bookService = bookService;
+    }
+
+    /**
+     * Endpoint para buscar todos los libros
+     *
+     * @return Información de todos los libros
+     */
+    @GetMapping("/findAll")
+    public ResponseEntity<CustomResponse<BookResponseDTO>> findAllBooks() {
+        List<BookResponseDTO> foundBooks = bookService.findAll();
+
+        logger.info("Libros encontrados.");
+
+        return ResponseHandler.sendResponse(
+                HttpStatus.OK, "Found books!", foundBooks
+        );
     }
 
     /**

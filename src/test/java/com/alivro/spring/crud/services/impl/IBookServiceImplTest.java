@@ -12,6 +12,8 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -69,6 +71,38 @@ public class IBookServiceImplTest {
                 .build();
 
         bookUpdateTwenty = BookRequestDTO.requestDTOtoEntity(2L, bookRequestUpdateTwenty);
+    }
+
+    @Test
+    public void findAllBooksReturnListBookResponseDTO() {
+        // Given
+        List<Book> books = new ArrayList<>();
+        books.add(bookJourney);
+        books.add(bookTwenty);
+
+        given(bookRepository.findAll()).willReturn(books);
+
+        // When
+        List<BookResponseDTO> foundBooks = bookService.findAll();
+
+        // Then
+        assertThat(foundBooks.size()).isEqualTo(2);
+        assertThat(foundBooks.get(0).getTitle()).isEqualTo("Journey to the Center of the Earth");
+        assertThat(foundBooks.get(1).getTitle()).isEqualTo("Twenty Thousand Leages Under the Sea");
+    }
+
+    @Test
+    public void findNonAllBooksReturnEmptyListBookResponseDTO() {
+        // Given
+        List<Book> books = new ArrayList<>();
+
+        given(bookRepository.findAll()).willReturn(books);
+
+        // When
+        List<BookResponseDTO> foundBooks = bookService.findAll();
+
+        // Then
+        assertThat(foundBooks).isEmpty();
     }
 
     @Test

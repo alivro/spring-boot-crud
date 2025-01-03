@@ -10,6 +10,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -25,6 +26,21 @@ public class IBookServiceImpl implements IBookService {
     @Autowired
     public IBookServiceImpl(BookRepository bookRepository) {
         this.bookRepository = bookRepository;
+    }
+
+    /**
+     * Método para buscar todos los libros
+     *
+     * @return Información de todos los libros
+     */
+    @Override
+    public List<BookResponseDTO> findAll() {
+        logger.info("Busca todos los libros.");
+        List<Book> foundBooks = bookRepository.findAll();
+
+        return foundBooks.stream()
+                .map(BookResponseDTO::entityToResponseDTO)
+                .toList();
     }
 
     /**
