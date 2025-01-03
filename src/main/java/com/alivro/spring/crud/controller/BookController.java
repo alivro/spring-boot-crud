@@ -1,9 +1,10 @@
 package com.alivro.spring.crud.controller;
 
-import com.alivro.spring.crud.model.Book;
+import com.alivro.spring.crud.handler.ResponseHandler;
 import com.alivro.spring.crud.model.request.BookRequestDTO;
 import com.alivro.spring.crud.model.response.BookResponseDTO;
 import com.alivro.spring.crud.services.IBookService;
+import com.alivro.spring.crud.util.CustomResponse;
 import jakarta.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -11,8 +12,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/book")
@@ -38,18 +37,22 @@ public class BookController {
      * @return Información del libro buscado
      */
     @GetMapping("/find/{id}")
-    public ResponseEntity<BookResponseDTO> findBook(@PathVariable("id") long id) {
+    public ResponseEntity<CustomResponse<BookResponseDTO>> findBook(@PathVariable("id") long id) {
         BookResponseDTO foundBook = bookService.findById(id);
 
         if (foundBook == null) {
             logger.info("Libro no encontrado. ID: {}", id);
 
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            return ResponseHandler.sendResponse(
+                    HttpStatus.NOT_FOUND, "Book not found!", null
+            );
         }
 
         logger.info("Libro encontrado. ID: {}", id);
 
-        return new ResponseEntity<>(foundBook, HttpStatus.OK);
+        return ResponseHandler.sendResponse(
+                HttpStatus.OK, "Found book!", foundBook
+        );
     }
 
     /**
@@ -59,18 +62,22 @@ public class BookController {
      * @return Información del libro guardado
      */
     @PostMapping("/save")
-    public ResponseEntity<BookResponseDTO> saveBook(@Valid @RequestBody BookRequestDTO book) {
+    public ResponseEntity<CustomResponse<BookResponseDTO>> saveBook(@Valid @RequestBody BookRequestDTO book) {
         BookResponseDTO savedBook = bookService.save(book);
 
         if (savedBook == null) {
             logger.info("Libro no guardado. ISBN-13: {}", book.getIsbn13());
 
-            return new ResponseEntity<>(HttpStatus.CONFLICT);
+            return ResponseHandler.sendResponse(
+                    HttpStatus.CONFLICT, "Book not saved!", null
+            );
         }
 
         logger.info("Libro guardado. ID: {}", savedBook.getId());
 
-        return new ResponseEntity<>(savedBook, HttpStatus.CREATED);
+        return ResponseHandler.sendResponse(
+                HttpStatus.CREATED, "Saved book!", savedBook
+        );
     }
 
     /**
@@ -81,32 +88,38 @@ public class BookController {
      * @return Información del libro actualizado
      */
     @PutMapping("/update/{id}")
-    public ResponseEntity<BookResponseDTO> updateBook(@PathVariable("id") long id, @Valid @RequestBody BookRequestDTO book) {
+    public ResponseEntity<CustomResponse<BookResponseDTO>> updateBook(@PathVariable("id") long id, @Valid @RequestBody BookRequestDTO book) {
         BookResponseDTO updatedBook = bookService.updateById(id, book);
 
         if (updatedBook == null) {
             logger.info("Libro no actualizado. ID: {}", id);
 
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            return ResponseHandler.sendResponse(
+                    HttpStatus.NOT_FOUND, "Book not updated!", null
+            );
         }
 
         logger.info("Libro actualizado. ID: {}", id);
 
-        return new ResponseEntity<>(updatedBook, HttpStatus.OK);
+        return ResponseHandler.sendResponse(
+                HttpStatus.OK, "Updated book!", updatedBook
+        );
     }
 
     /**
      * Endpoint para eliminar un libro por su ID
      *
      * @param id El identificador único del libro
-     * @return Status 200
+     * @return Estatus 200
      */
     @DeleteMapping("/delete/{id}")
-    public ResponseEntity<Optional<Book>> deleteBook(@PathVariable("id") long id) {
+    public ResponseEntity<CustomResponse<BookResponseDTO>> deleteBook(@PathVariable("id") long id) {
         bookService.deleteById(id);
 
         logger.info("Libro eliminado. ID: {}", id);
 
-        return new ResponseEntity<>(HttpStatus.OK);
+        return ResponseHandler.sendResponse(
+                HttpStatus.OK, "Deleted book!", null
+        );
     }
 }

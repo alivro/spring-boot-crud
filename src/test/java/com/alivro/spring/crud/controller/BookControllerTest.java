@@ -90,9 +90,9 @@ public class BookControllerTest {
 
         // Then
         response.andExpect(MockMvcResultMatchers.status().isOk())
-                .andExpect(MockMvcResultMatchers.jsonPath("$.title", CoreMatchers.is(bookResponseJourney.getTitle())))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.totalPages", CoreMatchers.is(bookResponseJourney.getTotalPages())))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.isbn13", CoreMatchers.is(bookResponseJourney.getIsbn13())));
+                .andExpect(MockMvcResultMatchers.jsonPath("$.data[0].title", CoreMatchers.is(bookResponseJourney.getTitle())))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.data[0].totalPages", CoreMatchers.is(bookResponseJourney.getTotalPages())))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.data[0].isbn13", CoreMatchers.is(bookResponseJourney.getIsbn13())));
     }
 
     @Test
@@ -106,7 +106,8 @@ public class BookControllerTest {
         ResultActions response = mockMvc.perform(get("/api/book/find/{id}", bookID));
 
         // Then
-        response.andExpect(MockMvcResultMatchers.status().isNotFound());
+        response.andExpect(MockMvcResultMatchers.status().isNotFound())
+                .andExpect(MockMvcResultMatchers.jsonPath("$.message", CoreMatchers.is("Book not found!")));
     }
 
     @Test
@@ -121,9 +122,9 @@ public class BookControllerTest {
 
         // Then
         response.andExpect(MockMvcResultMatchers.status().isCreated())
-                .andExpect(MockMvcResultMatchers.jsonPath("$.title", CoreMatchers.is(bookResponseTwenty.getTitle())))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.totalPages", CoreMatchers.is(bookResponseTwenty.getTotalPages())))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.isbn13", CoreMatchers.is(bookResponseTwenty.getIsbn13())));
+                .andExpect(MockMvcResultMatchers.jsonPath("$.data[0].title", CoreMatchers.is(bookResponseTwenty.getTitle())))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.data[0].totalPages", CoreMatchers.is(bookResponseTwenty.getTotalPages())))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.data[0].isbn13", CoreMatchers.is(bookResponseTwenty.getIsbn13())));
     }
 
     @Test
@@ -137,7 +138,8 @@ public class BookControllerTest {
                 .content(objectMapper.writeValueAsString(bookRequestTwenty)));
 
         // Then
-        response.andExpect(MockMvcResultMatchers.status().isConflict());
+        response.andExpect(MockMvcResultMatchers.status().isConflict())
+                .andExpect(MockMvcResultMatchers.jsonPath("$.message", CoreMatchers.is("Book not saved!")));
     }
 
     @Test
@@ -154,9 +156,9 @@ public class BookControllerTest {
 
         // Then
         response.andExpect(MockMvcResultMatchers.status().isOk())
-                .andExpect(MockMvcResultMatchers.jsonPath("$.title", CoreMatchers.is(bookResponseUpdateTwenty.getTitle())))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.totalPages", CoreMatchers.is(bookResponseUpdateTwenty.getTotalPages())))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.isbn13", CoreMatchers.is(bookResponseUpdateTwenty.getIsbn13())));
+                .andExpect(MockMvcResultMatchers.jsonPath("$.data[0].title", CoreMatchers.is(bookResponseUpdateTwenty.getTitle())))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.data[0].totalPages", CoreMatchers.is(bookResponseUpdateTwenty.getTotalPages())))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.data[0].isbn13", CoreMatchers.is(bookResponseUpdateTwenty.getIsbn13())));
     }
 
     @Test
@@ -172,7 +174,8 @@ public class BookControllerTest {
                 .content(objectMapper.writeValueAsString(bookRequestUpdateTwenty)));
 
         // Then
-        response.andExpect(MockMvcResultMatchers.status().isNotFound());
+        response.andExpect(MockMvcResultMatchers.status().isNotFound())
+                .andExpect(MockMvcResultMatchers.jsonPath("$.message", CoreMatchers.is("Book not updated!")));
     }
 
     @Test
