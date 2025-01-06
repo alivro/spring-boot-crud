@@ -1,3 +1,9 @@
+INSERT INTO author (id, first_name, middle_name, last_name, pseudonym) VALUES
+  (1, 'Eric', 'Arthur', 'Blair', 'George Orwell'),
+  (2, 'Herbert', 'George', 'Wells', 'H. G. Wells'),
+  (3, 'Aldous', 'Leonard', 'Huxley', 'Aldous Huxley'),
+  (4, 'Charles', 'Lutwidge', 'Dodgson' ,'Lewis Carroll');
+
 INSERT INTO book (id, title, author, total_pages, publisher, published_date, isbn_13) VALUES
   (1, '1984', 'George Orwell', 384, 'Berkley', '2003-05-06', '9780452284234'),
   (2, 'Animal Farm', 'George Orwell', 128, 'Berkley', '2003-05-06', '9780452284241'),
