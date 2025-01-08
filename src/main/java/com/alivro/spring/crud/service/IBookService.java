@@ -1,7 +1,7 @@
-package com.alivro.spring.crud.services;
+package com.alivro.spring.crud.service;
 
-import com.alivro.spring.crud.model.request.BookRequestDTO;
-import com.alivro.spring.crud.model.response.BookResponseDTO;
+import com.alivro.spring.crud.model.book.request.BookSaveRequestDto;
+import com.alivro.spring.crud.model.book.response.BookResponseDto;
 
 import java.util.List;
 
@@ -11,7 +11,7 @@ public interface IBookService {
      *
      * @return Información de todos los libros
      */
-    List<BookResponseDTO> findAll();
+    List<BookResponseDto> findAll();
 
     /**
      * Método para buscar un libro por su ID
@@ -19,7 +19,7 @@ public interface IBookService {
      * @param id Identificador único del libro
      * @return Información del libro buscado
      */
-    BookResponseDTO findById(Long id);
+    BookResponseDto findById(Long id);
 
     /**
      * Método para guardar un nuevo libro
@@ -27,7 +27,7 @@ public interface IBookService {
      * @param book Información del libro a guardar
      * @return Información del libro guardado
      */
-    BookResponseDTO save(BookRequestDTO book);
+    BookResponseDto save(BookSaveRequestDto book);
 
     /**
      * Método para actualizar la información de un libro
@@ -36,7 +36,7 @@ public interface IBookService {
      * @param book Información del libro a actualizar
      * @return Información del libro actualizado
      */
-    BookResponseDTO updateById(Long id, BookRequestDTO book);
+    BookResponseDto update(Long id, BookSaveRequestDto book);
 
     /**
      * Método para eliminar un libro por su ID

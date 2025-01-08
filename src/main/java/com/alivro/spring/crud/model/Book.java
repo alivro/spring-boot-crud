@@ -8,18 +8,20 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 
-@Data
-@AllArgsConstructor
-@NoArgsConstructor
-@Builder(toBuilder=true)
 @Entity
 @Table(name = "book")
+@AllArgsConstructor
+@NoArgsConstructor
+@Data
+@Builder(toBuilder = true)
 public class Book {
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "bookGen")
     @SequenceGenerator(name = "bookGen", sequenceName = "book_seq", allocationSize = 1)
-    @Column(name = "id")
+    @Column(name = "book_id")
     private long id;
 
     @Column(name = "title")
@@ -28,8 +30,13 @@ public class Book {
     @Column(name = "subtitle")
     private String subtitle;
 
-    @Column(name = "author")
-    private String author;
+    @ManyToMany
+    @JoinTable(
+            name = "book_author",
+            joinColumns = @JoinColumn(name = "book_id"),
+            inverseJoinColumns = @JoinColumn(name = "author_id")
+    )
+    private List<Author> authors = new ArrayList<>();
 
     @Column(name = "total_pages")
     private int totalPages;

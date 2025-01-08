@@ -1,4 +1,4 @@
-package com.alivro.spring.crud.model.response;
+package com.alivro.spring.crud.model.book.response;
 
 import com.alivro.spring.crud.model.Book;
 import lombok.AllArgsConstructor;
@@ -7,12 +7,14 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class BookResponseDTO {
+public class BookResponseDto {
     // Identificador único del libro
     private long id;
 
@@ -22,8 +24,8 @@ public class BookResponseDTO {
     // Subtítulo del libro
     private String subtitle;
 
-    // Autor del libro
-    private String author;
+    // Autor(es) del libro
+    private List<AuthorOfBookResponseDto> authors;
 
     // Número total de páginas
     private int totalPages;
@@ -41,17 +43,21 @@ public class BookResponseDTO {
     private String isbn10;
 
     /**
-     * Convierte un objeto Entity en un objeto ResponseDTO
+     * Convierte un objeto Entity en un objeto ResponseDto
      *
      * @param book Información del libro
-     * @return Representación ResponseDTO de la información del libro
+     * @return Representación ResponseDto de la información del libro
      */
-    public static BookResponseDTO entityToResponseDTO(Book book) {
-        return BookResponseDTO.builder()
+    public static BookResponseDto mapEntityToResponseDto(Book book) {
+        List<AuthorOfBookResponseDto> authorsOfBook = book.getAuthors().stream()
+                .map(AuthorOfBookResponseDto::mapEntityToResponseDto)
+                .collect(Collectors.toList());
+
+        return BookResponseDto.builder()
                 .id(book.getId())
                 .title(book.getTitle())
                 .subtitle(book.getSubtitle())
-                .author(book.getAuthor())
+                .authors(authorsOfBook)
                 .totalPages(book.getTotalPages())
                 .publisher(book.getPublisher())
                 .publishedDate(book.getPublishedDate())

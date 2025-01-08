@@ -1,7 +1,8 @@
-package com.alivro.spring.crud.services;
+package com.alivro.spring.crud.service;
 
-import com.alivro.spring.crud.model.request.AuthorRequestDto;
-import com.alivro.spring.crud.model.response.AuthorResponseDto;
+import com.alivro.spring.crud.model.author.request.AuthorSaveRequestDto;
+import com.alivro.spring.crud.model.author.response.AuthorFindResponseDto;
+import com.alivro.spring.crud.model.author.response.AuthorSaveResponseDto;
 
 import java.util.List;
 
@@ -11,7 +12,7 @@ public interface IAuthorService {
      *
      * @return Información de todos los autores
      */
-    List<AuthorResponseDto> findAll();
+    List<AuthorFindResponseDto> findAll();
 
     /**
      * Método para buscar un autor por su ID
@@ -19,7 +20,7 @@ public interface IAuthorService {
      * @param id Identificador único del autor
      * @return Información del autor buscado
      */
-    AuthorResponseDto findById(Long id);
+    AuthorFindResponseDto findById(Long id);
 
     /**
      * Método para guardar un nuevo autor
@@ -27,7 +28,7 @@ public interface IAuthorService {
      * @param author Información del autor a guardar
      * @return Información del autor guardado
      */
-    AuthorResponseDto save(AuthorRequestDto author);
+    AuthorSaveResponseDto save(AuthorSaveRequestDto author);
 
     /**
      * Método para actualizar la información de un autor
@@ -36,7 +37,7 @@ public interface IAuthorService {
      * @param author Información del autor a actualizar
      * @return Información del autor actualizado
      */
-    AuthorResponseDto update(Long id, AuthorRequestDto author);
+    AuthorSaveResponseDto update(Long id, AuthorSaveRequestDto author);
 
     /**
      * Método para eliminar un autor por su ID

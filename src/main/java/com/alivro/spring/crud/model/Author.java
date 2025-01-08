@@ -6,17 +6,20 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-@Data
-@AllArgsConstructor
-@NoArgsConstructor
-@Builder(toBuilder = true)
+import java.util.ArrayList;
+import java.util.List;
+
 @Entity
 @Table(name = "author")
+@AllArgsConstructor
+@NoArgsConstructor
+@Data
+@Builder(toBuilder = true)
 public class Author {
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "authorGen")
     @SequenceGenerator(name = "authorGen", sequenceName = "author_seq", allocationSize = 1)
-    @Column(name = "id")
+    @Column(name = "author_id")
     private long id;
 
     @Column(name = "first_name")
@@ -30,4 +33,12 @@ public class Author {
 
     @Column(name = "pseudonym")
     private String pseudonym;
+
+    @ManyToMany
+    @JoinTable(
+            name = "book_author",
+            inverseJoinColumns = @JoinColumn(name = "book_id"),
+            joinColumns = @JoinColumn(name = "author_id")
+    )
+    private List<Book> books = new ArrayList<>();
 }

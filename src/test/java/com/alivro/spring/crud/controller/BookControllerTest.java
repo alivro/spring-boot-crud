@@ -1,8 +1,10 @@
 package com.alivro.spring.crud.controller;
 
-import com.alivro.spring.crud.model.request.BookRequestDTO;
-import com.alivro.spring.crud.model.response.BookResponseDTO;
-import com.alivro.spring.crud.services.IBookService;
+import com.alivro.spring.crud.model.book.request.AuthorOfBookRequestDto;
+import com.alivro.spring.crud.model.book.request.BookSaveRequestDto;
+import com.alivro.spring.crud.model.book.response.AuthorOfBookResponseDto;
+import com.alivro.spring.crud.model.book.response.BookResponseDto;
+import com.alivro.spring.crud.service.IBookService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.hamcrest.CoreMatchers;
 import org.junit.jupiter.api.BeforeAll;
@@ -19,7 +21,9 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static org.hamcrest.Matchers.hasSize;
 import static org.mockito.ArgumentMatchers.any;
@@ -41,53 +45,104 @@ public class BookControllerTest {
     @Autowired
     private ObjectMapper objectMapper;
 
-    static BookRequestDTO bookRequestTwenty;
-    static BookRequestDTO bookRequestUpdateTwenty;
-    static BookResponseDTO bookResponseJourney;
-    static BookResponseDTO bookResponseTwenty;
-    static BookResponseDTO bookResponseUpdateTwenty;
+    private static BookSaveRequestDto bookSaveRequestAustereAcademy;
+    private static BookSaveRequestDto bookUpdateRequestAustereAcademy;
+    private static BookResponseDto bookResponseBadBeginning;
+    private static BookResponseDto bookResponseReptileRoom;
+    private static BookResponseDto bookResponseWideWindow;
+    private static BookResponseDto bookResponseMiserableMill;
+    private static BookResponseDto bookSavedResponseAustereAcademy;
+    private static BookResponseDto bookUpdatedResponseAustereAcademy;
 
     @BeforeAll
     public static void setup() {
-        bookResponseJourney = BookResponseDTO.builder()
+        AuthorOfBookResponseDto booksAuthorResponseSnicket = AuthorOfBookResponseDto.builder()
                 .id(1L)
-                .title("Journey to the Center of the Earth")
-                .author("Jules Verne")
-                .totalPages(352)
-                .publisher("Simon & Schuster")
-                .publishedDate(LocalDate.parse("2008-05-06"))
-                .isbn13("9781416561460")
+                .pseudonym("Lemony Snicket")
                 .build();
 
-        bookRequestTwenty = BookRequestDTO.builder()
-                .title("Twenty Thousand Leages Under the Sea")
-                .author("Jules Verne")
-                .totalPages(363)
-                .publisher("Puffin Classics")
-                .publishedDate(LocalDate.parse("2018-03-01"))
-                .isbn13("9780141377586")
+        bookResponseBadBeginning = BookResponseDto.builder()
+                .id(1L)
+                .title("A Series of Unfortunate Events")
+                .subtitle("The Bad Beginning")
+                .authors(Collections.singletonList(booksAuthorResponseSnicket))
+                .totalPages(176)
+                .publisher("HarperCollins")
+                .publishedDate(LocalDate.parse("1999-08-25"))
+                .isbn13("9780064407663")
                 .build();
 
-        bookResponseTwenty = requestToResponse(2L, bookRequestTwenty);
-
-        bookRequestUpdateTwenty = BookRequestDTO.builder()
-                .title("Twenty Thousand Leagues Under the Sea")
-                .author("Jules Verne")
-                .totalPages(336)
-                .publisher("Puffin Classics")
-                .publishedDate(LocalDate.parse("2018-03-01"))
-                .isbn13("9780141377568")
+        bookResponseReptileRoom = BookResponseDto.builder()
+                .id(2L)
+                .title("A Series of Unfortunate Events")
+                .subtitle("The Reptile Room")
+                .authors(Collections.singletonList(booksAuthorResponseSnicket))
+                .totalPages(208)
+                .publisher("HarperCollins")
+                .publishedDate(LocalDate.parse("1999-08-25"))
+                .isbn13("9780064407670")
                 .build();
 
-        bookResponseUpdateTwenty = requestToResponse(2L, bookRequestUpdateTwenty);
+        bookResponseWideWindow = BookResponseDto.builder()
+                .id(3L)
+                .title("A Series of Unfortunate Events")
+                .subtitle("The Wide Window")
+                .authors(Collections.singletonList(booksAuthorResponseSnicket))
+                .totalPages(224)
+                .publisher("HarperCollins")
+                .publishedDate(LocalDate.parse("2000-02-02"))
+                .isbn13("9780064407687")
+                .build();
+
+        bookResponseMiserableMill = BookResponseDto.builder()
+                .id(4L)
+                .title("A Series of Unfortunate Events")
+                .subtitle("The Miserable Mill")
+                .authors(Collections.singletonList(booksAuthorResponseSnicket))
+                .totalPages(208)
+                .publisher("HarperCollins")
+                .publishedDate(LocalDate.parse("2000-04-05"))
+                .isbn13("9780064407694")
+                .build();
+
+        AuthorOfBookRequestDto booksAuthorRequestSnicket = AuthorOfBookRequestDto.builder()
+                .id(1L)
+                .pseudonym("Lemony Snicket")
+                .build();
+
+        bookSaveRequestAustereAcademy = BookSaveRequestDto.builder()
+                .title("A Series of Fortunate Events")
+                .subtitle("The Ostentatious Academy")
+                .authors(Collections.singletonList(booksAuthorRequestSnicket))
+                .totalPages(231)
+                .publisher("HarperCollins")
+                .publishedDate(LocalDate.parse("2009-10-13"))
+                .isbn13("9780064408639")
+                .build();
+
+        bookSavedResponseAustereAcademy = mapRequestDtoToResponseDto(5L, bookSaveRequestAustereAcademy);
+
+        bookUpdateRequestAustereAcademy = BookSaveRequestDto.builder()
+                .title("A Series of Unfortunate Events")
+                .subtitle("The Austere Academy")
+                .authors(Collections.singletonList(booksAuthorRequestSnicket))
+                .totalPages(231)
+                .publisher("HarperCollins")
+                .publishedDate(LocalDate.parse("2009-10-13"))
+                .isbn13("9780064408639")
+                .build();
+
+        bookUpdatedResponseAustereAcademy = mapRequestDtoToResponseDto(5L, bookUpdateRequestAustereAcademy);
     }
 
     @Test
-    public void findAllBooksReturnOK() throws Exception {
+    public void findAll_Books_ExistingBooks_Return_Ok() throws Exception {
         //Given
-        List<BookResponseDTO> foundBooks = new ArrayList<>();
-        foundBooks.add(bookResponseJourney);
-        foundBooks.add(bookResponseTwenty);
+        List<BookResponseDto> foundBooks = new ArrayList<>();
+        foundBooks.add(bookResponseBadBeginning);
+        foundBooks.add(bookResponseReptileRoom);
+        foundBooks.add(bookResponseWideWindow);
+        foundBooks.add(bookResponseMiserableMill);
 
         given(bookService.findAll()).willReturn(foundBooks);
 
@@ -96,15 +151,23 @@ public class BookControllerTest {
 
         // Then
         response.andExpect(MockMvcResultMatchers.status().isOk())
-                .andExpect(MockMvcResultMatchers.jsonPath("$.data", hasSize(2)))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.data[0].title", CoreMatchers.is(bookResponseJourney.getTitle())))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.data[1].title", CoreMatchers.is(bookResponseTwenty.getTitle())));
+                .andExpect(MockMvcResultMatchers.jsonPath("$.message",
+                        CoreMatchers.is("Found books!")))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.data", hasSize(4)))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.data[0].subtitle",
+                        CoreMatchers.is(bookResponseBadBeginning.getSubtitle())))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.data[1].subtitle",
+                        CoreMatchers.is(bookResponseReptileRoom.getSubtitle())))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.data[2].subtitle",
+                        CoreMatchers.is(bookResponseWideWindow.getSubtitle())))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.data[3].subtitle",
+                        CoreMatchers.is(bookResponseMiserableMill.getSubtitle())));
     }
 
     @Test
-    public void findNonAllBooksReturnOK() throws Exception {
+    public void findAll_Books_NonExistingBooks_Return_Ok() throws Exception {
         //Given
-        List<BookResponseDTO> foundBooks = new ArrayList<>();
+        List<BookResponseDto> foundBooks = new ArrayList<>();
 
         given(bookService.findAll()).willReturn(foundBooks);
 
@@ -113,30 +176,39 @@ public class BookControllerTest {
 
         // Then
         response.andExpect(MockMvcResultMatchers.status().isOk())
+                .andExpect(MockMvcResultMatchers.jsonPath("$.message",
+                        CoreMatchers.is("Found books!")))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.data", hasSize(0)));
     }
 
     @Test
-    public void findExistingBookReturnOK() throws Exception {
+    public void findById_Book_ExistingBook_Return_Ok() throws Exception {
         //Given
         long bookID = 1L;
 
-        given(bookService.findById(bookID)).willReturn(bookResponseJourney);
+        given(bookService.findById(bookID)).willReturn(bookResponseBadBeginning);
 
         // When
         ResultActions response = mockMvc.perform(get("/api/book/find/{id}", bookID));
 
         // Then
         response.andExpect(MockMvcResultMatchers.status().isOk())
-                .andExpect(MockMvcResultMatchers.jsonPath("$.data[0].title", CoreMatchers.is(bookResponseJourney.getTitle())))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.data[0].totalPages", CoreMatchers.is(bookResponseJourney.getTotalPages())))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.data[0].isbn13", CoreMatchers.is(bookResponseJourney.getIsbn13())));
+                .andExpect(MockMvcResultMatchers.jsonPath("$.message",
+                        CoreMatchers.is("Found book!")))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.data[0].title",
+                        CoreMatchers.is(bookResponseBadBeginning.getTitle())))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.data[0].subtitle",
+                        CoreMatchers.is(bookResponseBadBeginning.getSubtitle())))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.data[0].totalPages",
+                        CoreMatchers.is(bookResponseBadBeginning.getTotalPages())))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.data[0].isbn13",
+                        CoreMatchers.is(bookResponseBadBeginning.getIsbn13())));
     }
 
     @Test
-    public void findNonExistingBookReturnNotFound() throws Exception {
+    public void findById_Book_NonExistingBook_Return_NotFound() throws Exception {
         //Given
-        long bookID = 1L;
+        long bookID = 10L;
 
         given(bookService.findById(anyLong())).willReturn(null);
 
@@ -145,79 +217,98 @@ public class BookControllerTest {
 
         // Then
         response.andExpect(MockMvcResultMatchers.status().isNotFound())
-                .andExpect(MockMvcResultMatchers.jsonPath("$.message", CoreMatchers.is("Book not found!")));
+                .andExpect(MockMvcResultMatchers.jsonPath("$.message",
+                        CoreMatchers.is("Book not found!")));
     }
 
     @Test
-    public void saveNonExistingBookReturnIsCreated() throws Exception {
+    public void save_Book_NonExistingBook_Return_Created() throws Exception {
         // Given
-        given(bookService.save(bookRequestTwenty)).willReturn(bookResponseTwenty);
+        given(bookService.save(bookSaveRequestAustereAcademy))
+                .willReturn(bookSavedResponseAustereAcademy);
 
         // When
         ResultActions response = mockMvc.perform(post("/api/book/save")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(bookRequestTwenty)));
+                .content(objectMapper.writeValueAsString(bookSaveRequestAustereAcademy)));
 
         // Then
         response.andExpect(MockMvcResultMatchers.status().isCreated())
-                .andExpect(MockMvcResultMatchers.jsonPath("$.data[0].title", CoreMatchers.is(bookResponseTwenty.getTitle())))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.data[0].totalPages", CoreMatchers.is(bookResponseTwenty.getTotalPages())))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.data[0].isbn13", CoreMatchers.is(bookResponseTwenty.getIsbn13())));
+                .andExpect(MockMvcResultMatchers.jsonPath("$.message",
+                        CoreMatchers.is("Saved book!")))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.data[0].title",
+                        CoreMatchers.is(bookSavedResponseAustereAcademy.getTitle())))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.data[0].subtitle",
+                        CoreMatchers.is(bookSavedResponseAustereAcademy.getSubtitle())))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.data[0].totalPages",
+                        CoreMatchers.is(bookSavedResponseAustereAcademy.getTotalPages())))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.data[0].isbn13",
+                        CoreMatchers.is(bookSavedResponseAustereAcademy.getIsbn13())));
     }
 
     @Test
-    public void saveExistingBookReturnIsConflict() throws Exception {
+    public void save_Book_ExistingBook_Return_Conflict() throws Exception {
         // Given
-        given(bookService.save(any(BookRequestDTO.class))).willReturn(null);
+        given(bookService.save(any(BookSaveRequestDto.class))).willReturn(null);
 
         // When
         ResultActions response = mockMvc.perform(post("/api/book/save")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(bookRequestTwenty)));
+                .content(objectMapper.writeValueAsString(bookSaveRequestAustereAcademy)));
 
         // Then
         response.andExpect(MockMvcResultMatchers.status().isConflict())
-                .andExpect(MockMvcResultMatchers.jsonPath("$.message", CoreMatchers.is("Book not saved!")));
+                .andExpect(MockMvcResultMatchers.jsonPath("$.message",
+                        CoreMatchers.is("Book not saved!")));
     }
 
     @Test
     public void updateExistingBookReturnIsOk() throws Exception {
         // Given
-        long bookId = 2L;
+        long bookId = 5L;
 
-        given(bookService.updateById(bookId, bookRequestUpdateTwenty)).willReturn(bookResponseUpdateTwenty);
+        given(bookService.update(bookId, bookUpdateRequestAustereAcademy))
+                .willReturn(bookUpdatedResponseAustereAcademy);
 
         // When
         ResultActions response = mockMvc.perform(put("/api/book/update/{id}", bookId)
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(bookRequestUpdateTwenty)));
+                .content(objectMapper.writeValueAsString(bookUpdateRequestAustereAcademy)));
 
         // Then
         response.andExpect(MockMvcResultMatchers.status().isOk())
-                .andExpect(MockMvcResultMatchers.jsonPath("$.data[0].title", CoreMatchers.is(bookResponseUpdateTwenty.getTitle())))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.data[0].totalPages", CoreMatchers.is(bookResponseUpdateTwenty.getTotalPages())))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.data[0].isbn13", CoreMatchers.is(bookResponseUpdateTwenty.getIsbn13())));
+                .andExpect(MockMvcResultMatchers.jsonPath("$.message",
+                        CoreMatchers.is("Updated book!")))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.data[0].title",
+                        CoreMatchers.is(bookUpdatedResponseAustereAcademy.getTitle())))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.data[0].subtitle",
+                        CoreMatchers.is(bookUpdatedResponseAustereAcademy.getSubtitle())))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.data[0].totalPages",
+                        CoreMatchers.is(bookUpdatedResponseAustereAcademy.getTotalPages())))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.data[0].isbn13",
+                        CoreMatchers.is(bookUpdatedResponseAustereAcademy.getIsbn13())));
     }
 
     @Test
-    public void updateNonExistingBookReturnIsNotFound() throws Exception {
+    public void update_Book_NonExistingBook_Return_NotFound() throws Exception {
         // Given
-        long bookId = 2L;
+        long bookId = 10L;
 
-        given(bookService.updateById(anyLong(), any(BookRequestDTO.class))).willReturn(null);
+        given(bookService.update(anyLong(), any(BookSaveRequestDto.class))).willReturn(null);
 
         // When
         ResultActions response = mockMvc.perform(put("/api/book/update/{id}", bookId)
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(bookRequestUpdateTwenty)));
+                .content(objectMapper.writeValueAsString(bookUpdateRequestAustereAcademy)));
 
         // Then
         response.andExpect(MockMvcResultMatchers.status().isNotFound())
-                .andExpect(MockMvcResultMatchers.jsonPath("$.message", CoreMatchers.is("Book not updated!")));
+                .andExpect(MockMvcResultMatchers.jsonPath("$.message",
+                        CoreMatchers.is("Book not updated!")));
     }
 
     @Test
-    public void deleteBookReturnIsOk() throws Exception {
+    public void deleteById_Book_Return_Ok() throws Exception {
         // Given
         long bookId = 1L;
 
@@ -230,11 +321,18 @@ public class BookControllerTest {
         response.andExpect(MockMvcResultMatchers.status().isOk());
     }
 
-    private static BookResponseDTO requestToResponse(long id, BookRequestDTO request) {
-        return BookResponseDTO.builder()
+    private static BookResponseDto mapRequestDtoToResponseDto(long id, BookSaveRequestDto request) {
+        List<AuthorOfBookResponseDto> authorsOfBook = request.getAuthors().stream()
+                .map(a -> AuthorOfBookResponseDto.builder()
+                        .id(a.getId())
+                        .pseudonym(a.getPseudonym())
+                        .build())
+                .collect(Collectors.toList());
+
+        return BookResponseDto.builder()
                 .id(id)
                 .title(request.getTitle())
-                .author(request.getAuthor())
+                .authors(authorsOfBook)
                 .totalPages(request.getTotalPages())
                 .publisher(request.getPublisher())
                 .publishedDate(request.getPublishedDate())

@@ -1,10 +1,10 @@
-package com.alivro.spring.crud.services.impl;
+package com.alivro.spring.crud.service.impl;
 
 import com.alivro.spring.crud.model.Book;
-import com.alivro.spring.crud.model.request.BookRequestDTO;
-import com.alivro.spring.crud.model.response.BookResponseDTO;
+import com.alivro.spring.crud.model.book.request.BookSaveRequestDto;
+import com.alivro.spring.crud.model.book.response.BookResponseDto;
 import com.alivro.spring.crud.repository.BookRepository;
-import com.alivro.spring.crud.services.IBookService;
+import com.alivro.spring.crud.service.IBookService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,12 +34,13 @@ public class IBookServiceImpl implements IBookService {
      * @return Información de todos los libros
      */
     @Override
-    public List<BookResponseDTO> findAll() {
+    public List<BookResponseDto> findAll() {
         logger.info("Busca todos los libros.");
+
         List<Book> foundBooks = bookRepository.findAll();
 
         return foundBooks.stream()
-                .map(BookResponseDTO::entityToResponseDTO)
+                .map(BookResponseDto::mapEntityToResponseDto)
                 .toList();
     }
 
@@ -50,11 +51,13 @@ public class IBookServiceImpl implements IBookService {
      * @return Información del libro buscado
      */
     @Override
-    public BookResponseDTO findById(Long id) {
+    public BookResponseDto findById(Long id) {
         logger.info("Busca libro. ID: {}", id);
+
         Optional<Book> foundBook = bookRepository.findById(id);
 
-        return foundBook.map(BookResponseDTO::entityToResponseDTO).orElse(null);
+        return foundBook.map(BookResponseDto::mapEntityToResponseDto)
+                .orElse(null);
     }
 
     /**
@@ -64,24 +67,25 @@ public class IBookServiceImpl implements IBookService {
      * @return Información del libro guardado
      */
     @Override
-    public BookResponseDTO save(BookRequestDTO book) {
+    public BookResponseDto save(BookSaveRequestDto book) {
         logger.info("Busca libro. ISBN-13: {}", book.getIsbn13());
 
         // Verifica si ya existe un libro con el mismo ISBN-13
         if (bookRepository.existsByIsbn13(book.getIsbn13())) {
             logger.info("Libro existente. ISBN-13: {}", book.getIsbn13());
+
             return null;
         }
 
         logger.info("Libro no existente. ISBN-13: {}", book.getIsbn13());
         logger.info("Guarda libro. ISBN-13: {}", book.getIsbn13());
 
-        // Guarda el nuevo libro
-        return BookResponseDTO.entityToResponseDTO(
-                bookRepository.save(
-                        BookRequestDTO.requestDTOtoEntity(book)
-                )
+        // Guarda la información del nuevo libro
+        Book savedBook = bookRepository.save(
+                BookSaveRequestDto.mapRequestDtoToEntity(book)
         );
+
+        return BookResponseDto.mapEntityToResponseDto(savedBook);
     }
 
     /**
@@ -92,23 +96,36 @@ public class IBookServiceImpl implements IBookService {
      * @return Información del libro actualizado
      */
     @Override
-    public BookResponseDTO updateById(Long id, BookRequestDTO book) {
+    public BookResponseDto update(Long id, BookSaveRequestDto book) {
         logger.info("Busca libro. ID: {}", id);
 
+        Optional<Book> foundBook = bookRepository.findById(id);
+
         // Verifica si existe un libro con ese id
-        if (!bookRepository.existsById(id)) {
+        if (foundBook.isEmpty()) {
             logger.info("Libro no existente. ID: {}", id);
+
             return null;
         }
 
+        // Información del libro a actualizar
+        Book bookToUpdate = foundBook.get();
+        bookToUpdate.setTitle(book.getTitle());
+        bookToUpdate.setSubtitle(book.getSubtitle());
+        bookToUpdate.setTotalPages(book.getTotalPages());
+        bookToUpdate.setPublisher(book.getPublisher());
+        bookToUpdate.setPublishedDate(book.getPublishedDate());
+        bookToUpdate.setIsbn13(book.getIsbn13());
+        bookToUpdate.setIsbn10(book.getIsbn10());
+
         logger.info("Actualiza libro. ID: {}", id);
 
-        // Actualiza la informaciṕn del libro
-        return BookResponseDTO.entityToResponseDTO(
-                bookRepository.save(
-                        BookRequestDTO.requestDTOtoEntity(id, book)
-                )
+        // Actualiza la información del libro
+        Book updatedBook = bookRepository.save(
+                BookSaveRequestDto.mapRequestDtoToEntity(id, book)
         );
+
+        return BookResponseDto.mapEntityToResponseDto(updatedBook);
     }
 
     /**

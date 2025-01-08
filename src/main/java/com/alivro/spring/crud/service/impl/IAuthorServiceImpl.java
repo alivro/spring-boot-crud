@@ -1,10 +1,11 @@
-package com.alivro.spring.crud.services.impl;
+package com.alivro.spring.crud.service.impl;
 
 import com.alivro.spring.crud.model.Author;
-import com.alivro.spring.crud.model.request.AuthorRequestDto;
-import com.alivro.spring.crud.model.response.AuthorResponseDto;
+import com.alivro.spring.crud.model.author.request.AuthorSaveRequestDto;
+import com.alivro.spring.crud.model.author.response.AuthorFindResponseDto;
+import com.alivro.spring.crud.model.author.response.AuthorSaveResponseDto;
 import com.alivro.spring.crud.repository.AuthorRepository;
-import com.alivro.spring.crud.services.IAuthorService;
+import com.alivro.spring.crud.service.IAuthorService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,13 +35,13 @@ public class IAuthorServiceImpl implements IAuthorService {
      * @return Información de todos los autores
      */
     @Override
-    public List<AuthorResponseDto> findAll() {
+    public List<AuthorFindResponseDto> findAll() {
         logger.info("Busca todos los autores.");
 
         List<Author> foundAuthors = authorRepository.findAll();
 
         return foundAuthors.stream()
-                .map(AuthorResponseDto::mapEntityToResponseDto)
+                .map(AuthorFindResponseDto::mapEntityToResponseDto)
                 .toList();
     }
 
@@ -51,12 +52,13 @@ public class IAuthorServiceImpl implements IAuthorService {
      * @return Información del autor buscado
      */
     @Override
-    public AuthorResponseDto findById(Long id) {
+    public AuthorFindResponseDto findById(Long id) {
         logger.info("Busca autor. ID: {}", id);
 
         Optional<Author> foundAuthor = authorRepository.findById(id);
 
-        return foundAuthor.map(AuthorResponseDto::mapEntityToResponseDto).orElse(null);
+        return foundAuthor.map(AuthorFindResponseDto::mapEntityToResponseDto)
+                .orElse(null);
     }
 
     /**
@@ -66,7 +68,7 @@ public class IAuthorServiceImpl implements IAuthorService {
      * @return Información del autor guardado
      */
     @Override
-    public AuthorResponseDto save(AuthorRequestDto author) {
+    public AuthorSaveResponseDto save(AuthorSaveRequestDto author) {
         String pseudonym = author.getPseudonym();
 
         logger.info("Busca autor. Pseudónimo: {}", pseudonym);
@@ -81,12 +83,12 @@ public class IAuthorServiceImpl implements IAuthorService {
         logger.info("Autor no existente. Pseudónimo: {}", pseudonym);
         logger.info("Guarda autor. Pseudónimo: {}", pseudonym);
 
-        // Guarda el nuevo autor
-        return AuthorResponseDto.mapEntityToResponseDto(
-                authorRepository.save(
-                        AuthorRequestDto.mapRequestDtoToEntity(author)
-                )
+        // Guarda la información del nuevo autor
+        Author savedAuthor = authorRepository.save(
+                AuthorSaveRequestDto.mapRequestDtoToEntity(author)
         );
+
+        return AuthorSaveResponseDto.mapEntityToResponseDto(savedAuthor);
     }
 
     /**
@@ -97,24 +99,31 @@ public class IAuthorServiceImpl implements IAuthorService {
      * @return Información del autor actualizado
      */
     @Override
-    public AuthorResponseDto update(Long id, AuthorRequestDto author) {
+    public AuthorSaveResponseDto update(Long id, AuthorSaveRequestDto author) {
         logger.info("Busca autor. ID: {}", id);
 
+        Optional<Author> foundAuthor = authorRepository.findById(id);
+
         // Verifica si existe un autor con ese id
-        if (!authorRepository.existsById(id)) {
+        if (foundAuthor.isEmpty()) {
             logger.info("Autor no existente. ID: {}", id);
 
             return null;
         }
 
+        // Información del autor a actualizar
+        Author authorToUpdate = foundAuthor.get();
+        authorToUpdate.setFirstName(author.getFirstName());
+        authorToUpdate.setMiddleName(author.getMiddleName());
+        authorToUpdate.setLastName(author.getLastName());
+        authorToUpdate.setPseudonym(author.getPseudonym());
+
         logger.info("Actualiza autor. ID: {}", id);
 
-        // Actualiza la informaciṕn del autor
-        return AuthorResponseDto.mapEntityToResponseDto(
-                authorRepository.save(
-                        AuthorRequestDto.mapRequestDtoToEntity(id, author)
-                )
-        );
+        // Actualiza la información del autor
+        Author updatedAuthor = authorRepository.save(authorToUpdate);
+
+        return AuthorSaveResponseDto.mapEntityToResponseDto(updatedAuthor);
     }
 
     /**

@@ -1,8 +1,10 @@
 package com.alivro.spring.crud.controller;
 
-import com.alivro.spring.crud.model.request.AuthorRequestDto;
-import com.alivro.spring.crud.model.response.AuthorResponseDto;
-import com.alivro.spring.crud.services.IAuthorService;
+import com.alivro.spring.crud.model.author.request.AuthorSaveRequestDto;
+import com.alivro.spring.crud.model.author.response.AuthorFindResponseDto;
+import com.alivro.spring.crud.model.author.response.AuthorSaveResponseDto;
+import com.alivro.spring.crud.model.author.response.BookOfAuthorResponseDto;
+import com.alivro.spring.crud.service.IAuthorService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.hamcrest.CoreMatchers;
 import org.junit.jupiter.api.BeforeAll;
@@ -18,6 +20,7 @@ import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import static org.hamcrest.Matchers.hasSize;
@@ -40,72 +43,98 @@ public class AuthorControllerTest {
     @Autowired
     private ObjectMapper objectMapper;
 
-    private static AuthorRequestDto authorRequestSaveVerne;
-    private static AuthorRequestDto authorRequestUpdateVerne;
-    private static AuthorResponseDto authorResponseOrwell;
-    private static AuthorResponseDto authorResponseWells;
-    private static AuthorResponseDto authorResponseHuxley;
-    private static AuthorResponseDto authorResponseCarroll;
-    private static AuthorResponseDto authorResponseSavedVerne;
-    private static AuthorResponseDto authorResponseUpdatedVerne;
+    private static AuthorSaveRequestDto authorSaveRequestVerne;
+    private static AuthorSaveRequestDto authorUpdateRequestVerne;
+    private static AuthorFindResponseDto authorResponseOrwell;
+    private static AuthorFindResponseDto authorResponseWells;
+    private static AuthorFindResponseDto authorResponseHuxley;
+    private static AuthorFindResponseDto authorResponseCarroll;
+    private static AuthorSaveResponseDto authorSavedResponseVerne;
+    private static AuthorSaveResponseDto authorUpdatedResponseVerne;
 
     @BeforeAll
     public static void setup() {
-        authorResponseOrwell = AuthorResponseDto.builder()
+        BookOfAuthorResponseDto book1984 = BookOfAuthorResponseDto.builder()
+                .id(1L)
+                .title("1984")
+                .subtitle("75th Anniversary")
+                .publisher("Berkley")
+                .isbn13("'9780452284234'")
+                .build();
+
+        BookOfAuthorResponseDto bookTimeMachine = BookOfAuthorResponseDto.builder()
+                .id(2L)
+                .title("The Time Machine")
+                .publisher("Penguin Classics")
+                .isbn13("9780141439976")
+                .build();
+
+        BookOfAuthorResponseDto bookBraveWorld = BookOfAuthorResponseDto.builder()
+                .id(3L)
+                .title("Brave New World")
+                .publisher("Harper")
+                .isbn13("9780062696120")
+                .build();
+
+        authorResponseOrwell = AuthorFindResponseDto.builder()
                 .id(1L)
                 .firstName("Eric")
                 .middleName("Arthur")
                 .lastName("Blair")
                 .pseudonym("George Orwell")
+                .books(Collections.singletonList(book1984))
                 .build();
 
-        authorResponseWells = AuthorResponseDto.builder()
+        authorResponseWells = AuthorFindResponseDto.builder()
                 .id(2L)
                 .firstName("Herbert")
                 .middleName("George")
                 .lastName("Wells")
                 .pseudonym("H. G. Wells")
+                .books(Collections.singletonList(bookTimeMachine))
                 .build();
 
-        authorResponseHuxley = AuthorResponseDto.builder()
+        authorResponseHuxley = AuthorFindResponseDto.builder()
                 .id(3L)
                 .firstName("Aldous")
                 .middleName("Leonard")
                 .lastName("Huxley")
                 .pseudonym("Aldous Huxley")
+                .books(Collections.singletonList(bookBraveWorld))
                 .build();
 
-        authorResponseCarroll = AuthorResponseDto.builder()
+        authorResponseCarroll = AuthorFindResponseDto.builder()
                 .id(4L)
                 .firstName("Charles")
                 .middleName("Lutwidge")
                 .lastName("Dodgson")
                 .pseudonym("Lewis Carroll")
+                .books(new ArrayList<>())
                 .build();
 
-        authorRequestSaveVerne = AuthorRequestDto.builder()
+        authorSaveRequestVerne = AuthorSaveRequestDto.builder()
                 .firstName("Jules")
                 .middleName("Gaby")
                 .lastName("Verne")
                 .pseudonym("Jules Verne")
                 .build();
 
-        authorResponseSavedVerne = mapRequestDtoToResponseDto(5L, authorRequestSaveVerne);
+        authorSavedResponseVerne = mapRequestDtoToResponseDto(5L, authorSaveRequestVerne);
 
-        authorRequestUpdateVerne = AuthorRequestDto.builder()
+        authorUpdateRequestVerne = AuthorSaveRequestDto.builder()
                 .firstName("Jules")
                 .middleName("Gabriel")
                 .lastName("Verne")
                 .pseudonym("Jules Verne")
                 .build();
 
-        authorResponseUpdatedVerne = mapRequestDtoToResponseDto(5L, authorRequestUpdateVerne);
+        authorUpdatedResponseVerne = mapRequestDtoToResponseDto(5L, authorUpdateRequestVerne);
     }
 
     @Test
     public void findAll_Authors_ExistingAuthors_Return_Ok() throws Exception {
         //Given
-        List<AuthorResponseDto> foundAuthors = new ArrayList<>();
+        List<AuthorFindResponseDto> foundAuthors = new ArrayList<>();
         foundAuthors.add(authorResponseOrwell);
         foundAuthors.add(authorResponseWells);
         foundAuthors.add(authorResponseHuxley);
@@ -134,7 +163,7 @@ public class AuthorControllerTest {
     @Test
     public void findAll_Authors_NonExistingAuthors_Return_Ok() throws Exception {
         //Given
-        List<AuthorResponseDto> foundAuthors = new ArrayList<>();
+        List<AuthorFindResponseDto> foundAuthors = new ArrayList<>();
 
         given(authorService.findAll()).willReturn(foundAuthors);
 
@@ -193,36 +222,37 @@ public class AuthorControllerTest {
     @Test
     public void save_Author_NonExistingAuthor_Return_Created() throws Exception {
         // Given
-        given(authorService.save(authorRequestSaveVerne)).willReturn(authorResponseSavedVerne);
+        given(authorService.save(authorSaveRequestVerne))
+                .willReturn(authorSavedResponseVerne);
 
         // When
         ResultActions response = mockMvc.perform(post("/api/author/save")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(authorRequestSaveVerne)));
+                .content(objectMapper.writeValueAsString(authorSaveRequestVerne)));
 
         // Then
         response.andExpect(MockMvcResultMatchers.status().isCreated())
                 .andExpect(MockMvcResultMatchers.jsonPath("$.message",
                         CoreMatchers.is("Saved author!")))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.data[0].firstName",
-                        CoreMatchers.is(authorResponseSavedVerne.getFirstName())))
+                        CoreMatchers.is(authorSavedResponseVerne.getFirstName())))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.data[0].middleName",
-                        CoreMatchers.is(authorResponseSavedVerne.getMiddleName())))
+                        CoreMatchers.is(authorSavedResponseVerne.getMiddleName())))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.data[0].lastName",
-                        CoreMatchers.is(authorResponseSavedVerne.getLastName())))
+                        CoreMatchers.is(authorSavedResponseVerne.getLastName())))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.data[0].pseudonym",
-                        CoreMatchers.is(authorResponseSavedVerne.getPseudonym())));
+                        CoreMatchers.is(authorSavedResponseVerne.getPseudonym())));
     }
 
     @Test
     public void save_Author_ExistingAuthor_Return_Conflict() throws Exception {
         // Given
-        given(authorService.save(any(AuthorRequestDto.class))).willReturn(null);
+        given(authorService.save(any(AuthorSaveRequestDto.class))).willReturn(null);
 
         // When
         ResultActions response = mockMvc.perform(post("/api/author/save")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(authorRequestSaveVerne)));
+                .content(objectMapper.writeValueAsString(authorSaveRequestVerne)));
 
         // Then
         response.andExpect(MockMvcResultMatchers.status().isConflict())
@@ -235,25 +265,26 @@ public class AuthorControllerTest {
         // Given
         long authorId = 5L;
 
-        given(authorService.update(authorId, authorRequestUpdateVerne)).willReturn(authorResponseUpdatedVerne);
+        given(authorService.update(authorId, authorUpdateRequestVerne))
+                .willReturn(authorUpdatedResponseVerne);
 
         // When
         ResultActions response = mockMvc.perform(put("/api/author/update/{id}", authorId)
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(authorRequestUpdateVerne)));
+                .content(objectMapper.writeValueAsString(authorUpdateRequestVerne)));
 
         // Then
         response.andExpect(MockMvcResultMatchers.status().isOk())
                 .andExpect(MockMvcResultMatchers.jsonPath("$.message",
                         CoreMatchers.is("Updated author!")))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.data[0].firstName",
-                        CoreMatchers.is(authorResponseUpdatedVerne.getFirstName())))
+                        CoreMatchers.is(authorUpdatedResponseVerne.getFirstName())))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.data[0].middleName",
-                        CoreMatchers.is(authorResponseUpdatedVerne.getMiddleName())))
+                        CoreMatchers.is(authorUpdatedResponseVerne.getMiddleName())))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.data[0].lastName",
-                        CoreMatchers.is(authorResponseUpdatedVerne.getLastName())))
+                        CoreMatchers.is(authorUpdatedResponseVerne.getLastName())))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.data[0].pseudonym",
-                        CoreMatchers.is(authorResponseUpdatedVerne.getPseudonym())));
+                        CoreMatchers.is(authorUpdatedResponseVerne.getPseudonym())));
     }
 
     @Test
@@ -261,12 +292,12 @@ public class AuthorControllerTest {
         // Given
         long authorId = 10L;
 
-        given(authorService.update(anyLong(), any(AuthorRequestDto.class))).willReturn(null);
+        given(authorService.update(anyLong(), any(AuthorSaveRequestDto.class))).willReturn(null);
 
         // When
         ResultActions response = mockMvc.perform(put("/api/author/update/{id}", authorId)
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(authorRequestUpdateVerne)));
+                .content(objectMapper.writeValueAsString(authorUpdateRequestVerne)));
 
         // Then
         response.andExpect(MockMvcResultMatchers.status().isNotFound())
@@ -290,8 +321,8 @@ public class AuthorControllerTest {
                         CoreMatchers.is("Deleted author!")));
     }
 
-    private static AuthorResponseDto mapRequestDtoToResponseDto(long id, AuthorRequestDto request) {
-        return AuthorResponseDto.builder()
+    private static AuthorSaveResponseDto mapRequestDtoToResponseDto(long id, AuthorSaveRequestDto request) {
+        return AuthorSaveResponseDto.builder()
                 .id(id)
                 .firstName(request.getFirstName())
                 .middleName(request.getMiddleName())

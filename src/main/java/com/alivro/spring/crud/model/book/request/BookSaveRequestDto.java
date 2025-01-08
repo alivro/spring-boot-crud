@@ -1,7 +1,9 @@
-package com.alivro.spring.crud.model.request;
+package com.alivro.spring.crud.model.book.request;
 
+import com.alivro.spring.crud.model.Author;
 import com.alivro.spring.crud.model.Book;
 import com.fasterxml.jackson.annotation.JsonFormat;
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
@@ -12,12 +14,14 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class BookRequestDTO {
+public class BookSaveRequestDto {
     @NotBlank(message = "El campo título es obligatorio.")
     @Size(min = 1, max = 255, message = "El campo título debe tener como máximo 255 caracteres.")
     private String title;
@@ -25,9 +29,8 @@ public class BookRequestDTO {
     @Size(min = 1, max = 255, message = "El campo subtítulo debe tener como máximo 255 caracteres.")
     private String subtitle;
 
-    @NotBlank(message = "El campo autor es obligatorio.")
-    @Size(min = 1, max = 100, message = "El campo autor debe tener como máximo 100 caracteres.")
-    private String author;
+    @Valid
+    private List<AuthorOfBookRequestDto> authors;
 
     @Positive(message = "El campo total de páginas debe ser un número positivo.")
     private int totalPages;
@@ -48,35 +51,39 @@ public class BookRequestDTO {
     private String isbn10;
 
     /**
-     * Convierte un objeto RequestDTO en un objeto Entity
+     * Convierte un objeto RequestDto en un objeto Entity
      *
-     * @param id   Identificador único del libro
      * @param book Información del libro
      * @return Representación Entity de la información del libro
      */
-    public static Book requestDTOtoEntity(long id, BookRequestDTO book) {
-        return requestDTOtoEntity(book)
-                .toBuilder()
-                .id(id)
-                .build();
-    }
+    public static Book mapRequestDtoToEntity(BookSaveRequestDto book) {
+        List<Author> authorsOfBook = book.getAuthors().stream()
+                .map(AuthorOfBookRequestDto::mapRequestDtoToEntity)
+                .collect(Collectors.toList());
 
-    /**
-     * Convierte un objeto RequestDTO en un objeto Entity
-     *
-     * @param book Información del libro
-     * @return Representación Entity de la información del libro
-     */
-    public static Book requestDTOtoEntity(BookRequestDTO book) {
         return Book.builder()
                 .title(book.getTitle())
                 .subtitle(book.getSubtitle())
-                .author(book.getAuthor())
+                .authors(authorsOfBook)
                 .totalPages(book.getTotalPages())
                 .publisher(book.getPublisher())
                 .publishedDate(book.getPublishedDate())
                 .isbn13(book.getIsbn13())
                 .isbn10(book.getIsbn10())
+                .build();
+    }
+
+    /**
+     * Convierte un objeto RequestDto en un objeto Entity
+     *
+     * @param id   Identificador único del libro
+     * @param book Información del libro
+     * @return Representación Entity de la información del libro
+     */
+    public static Book mapRequestDtoToEntity(long id, BookSaveRequestDto book) {
+        return mapRequestDtoToEntity(book)
+                .toBuilder()
+                .id(id)
                 .build();
     }
 }

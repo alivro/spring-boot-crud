@@ -1,4 +1,4 @@
-package com.alivro.spring.crud.model.response;
+package com.alivro.spring.crud.model.book.response;
 
 import com.alivro.spring.crud.model.Author;
 import lombok.AllArgsConstructor;
@@ -10,18 +10,9 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class AuthorResponseDto {
+public class AuthorOfBookResponseDto {
     // Identificador único del autor
     private long id;
-
-    // Nombre del autor
-    private String firstName;
-
-    // Segundo nombre del autor
-    private String middleName;
-
-    // Apellido del autor
-    private String lastName;
 
     // Pseudónimo único del autor
     private String pseudonym;
@@ -32,12 +23,9 @@ public class AuthorResponseDto {
      * @param author Información del autor
      * @return Representación ResponseDto de la información del autor
      */
-    public static AuthorResponseDto mapEntityToResponseDto(Author author) {
-        return AuthorResponseDto.builder()
+    public static AuthorOfBookResponseDto mapEntityToResponseDto(Author author) {
+        return AuthorOfBookResponseDto.builder()
                 .id(author.getId())
-                .firstName(author.getFirstName())
-                .middleName(author.getMiddleName())
-                .lastName(author.getLastName())
                 .pseudonym(author.getPseudonym())
                 .build();
     }

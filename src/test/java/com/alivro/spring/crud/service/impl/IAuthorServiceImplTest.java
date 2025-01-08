@@ -1,8 +1,10 @@
-package com.alivro.spring.crud.services.impl;
+package com.alivro.spring.crud.service.impl;
 
 import com.alivro.spring.crud.model.Author;
-import com.alivro.spring.crud.model.request.AuthorRequestDto;
-import com.alivro.spring.crud.model.response.AuthorResponseDto;
+import com.alivro.spring.crud.model.Book;
+import com.alivro.spring.crud.model.author.request.AuthorSaveRequestDto;
+import com.alivro.spring.crud.model.author.response.AuthorFindResponseDto;
+import com.alivro.spring.crud.model.author.response.AuthorSaveResponseDto;
 import com.alivro.spring.crud.repository.AuthorRepository;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -11,7 +13,9 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -31,25 +35,59 @@ public class IAuthorServiceImplTest {
     @InjectMocks
     private IAuthorServiceImpl authorService;
 
-    private static AuthorRequestDto authorRequestSaveVerne;
-    private static AuthorRequestDto authorRequestUpdateVerne;
+    private static AuthorSaveRequestDto authorSaveRequestVerne;
+    private static AuthorSaveRequestDto authorUpdateRequestVerne;
     private static Author authorOrwell;
     private static Author authorWells;
     private static Author authorHuxley;
     private static Author authorCarroll;
-    private static Author authorSaveVerne;
+    private static Author authorToSaveVerne;
     private static Author authorSavedVerne;
-    private static Author authorUpdateVerne;
+    private static Author authorToUpdateVerne;
     private static Author authorUpdatedVerne;
 
     @BeforeAll
     public static void setup() {
+        Book book1984 = Book.builder()
+                .id(1L)
+                .title("1984")
+                .subtitle("75th Anniversary")
+                .totalPages(384)
+                .publisher("Berkley")
+                .publishedDate(LocalDate.parse("2003-05-06"))
+                .isbn13("'9780452284234'")
+                .isbn10(null)
+                .build();
+
+        Book bookTimeMachine = Book.builder()
+                .id(2L)
+                .title("The Time Machine")
+                .subtitle(null)
+                .totalPages(128)
+                .publisher("Penguin Classics")
+                .publishedDate(LocalDate.parse("2005-05-31"))
+                .isbn13("9780141439976")
+                .isbn10(null)
+                .build();
+
+        Book bookBraveWorld = Book.builder()
+                .id(3L)
+                .title("Brave New World")
+                .subtitle(null)
+                .totalPages(272)
+                .publisher("Harper")
+                .publishedDate(LocalDate.parse("2017-05-09"))
+                .isbn13("9780062696120")
+                .isbn10("0062696122")
+                .build();
+
         authorOrwell = Author.builder()
                 .id(1L)
                 .firstName("Eric")
                 .middleName("Arthur")
                 .lastName("Blair")
                 .pseudonym("George Orwell")
+                .books(Collections.singletonList(book1984))
                 .build();
 
         authorWells = Author.builder()
@@ -58,6 +96,7 @@ public class IAuthorServiceImplTest {
                 .middleName("George")
                 .lastName("Wells")
                 .pseudonym("H. G. Wells")
+                .books(Collections.singletonList(bookTimeMachine))
                 .build();
 
         authorHuxley = Author.builder()
@@ -66,6 +105,7 @@ public class IAuthorServiceImplTest {
                 .middleName("Leonard")
                 .lastName("Huxley")
                 .pseudonym("Aldous Huxley")
+                .books(Collections.singletonList(bookBraveWorld))
                 .build();
 
         authorCarroll = Author.builder()
@@ -74,33 +114,34 @@ public class IAuthorServiceImplTest {
                 .middleName("Lutwidge")
                 .lastName("Dodgson")
                 .pseudonym("Lewis Carroll")
+                .books(new ArrayList<>())
                 .build();
 
-        authorRequestSaveVerne = AuthorRequestDto.builder()
+        authorSaveRequestVerne = AuthorSaveRequestDto.builder()
                 .firstName("Jules")
                 .middleName("Gaby")
                 .lastName("Verne")
                 .pseudonym("Jules Verne")
                 .build();
 
-        authorSaveVerne = AuthorRequestDto.mapRequestDtoToEntity(authorRequestSaveVerne);
+        authorToSaveVerne = AuthorSaveRequestDto.mapRequestDtoToEntity(authorSaveRequestVerne);
 
-        authorSavedVerne = AuthorRequestDto.mapRequestDtoToEntity(5L, authorRequestSaveVerne);
+        authorSavedVerne = AuthorSaveRequestDto.mapRequestDtoToEntity(5L, authorSaveRequestVerne);
 
-        authorRequestUpdateVerne = AuthorRequestDto.builder()
+        authorUpdateRequestVerne = AuthorSaveRequestDto.builder()
                 .firstName("Jules")
                 .middleName("Gabriel")
                 .lastName("Verne")
                 .pseudonym("Jules Verne")
                 .build();
 
-        authorUpdateVerne = AuthorRequestDto.mapRequestDtoToEntity(5L, authorRequestUpdateVerne);
+        authorToUpdateVerne = AuthorSaveRequestDto.mapRequestDtoToEntity(5L, authorUpdateRequestVerne);
 
-        authorUpdatedVerne = AuthorRequestDto.mapRequestDtoToEntity(5L, authorRequestUpdateVerne);
+        authorUpdatedVerne = AuthorSaveRequestDto.mapRequestDtoToEntity(5L, authorUpdateRequestVerne);
     }
 
     @Test
-    public void findAll_Author_ExistingAuthors_Return_ListAuthorResponseDTO() {
+    public void findAll_Authors_ExistingAuthors_Return_ListAuthorResponseDTO() {
         // Given
         List<Author> authors = new ArrayList<>();
         authors.add(authorOrwell);
@@ -111,7 +152,7 @@ public class IAuthorServiceImplTest {
         given(authorRepository.findAll()).willReturn(authors);
 
         // When
-        List<AuthorResponseDto> foundAuthors = authorService.findAll();
+        List<AuthorFindResponseDto> foundAuthors = authorService.findAll();
 
         // Then
         assertThat(foundAuthors.size()).isEqualTo(4);
@@ -129,7 +170,7 @@ public class IAuthorServiceImplTest {
         given(authorRepository.findAll()).willReturn(authors);
 
         // When
-        List<AuthorResponseDto> foundAuthors = authorService.findAll();
+        List<AuthorFindResponseDto> foundAuthors = authorService.findAll();
 
         // Then
         assertThat(foundAuthors).isEmpty();
@@ -143,7 +184,7 @@ public class IAuthorServiceImplTest {
         given(authorRepository.findById(authorId)).willReturn(Optional.of(authorOrwell));
 
         // When
-        AuthorResponseDto foundAuthor = authorService.findById(authorId);
+        AuthorFindResponseDto foundAuthor = authorService.findById(authorId);
 
         // Then
         assertThat(foundAuthor).isNotNull();
@@ -161,7 +202,7 @@ public class IAuthorServiceImplTest {
         given(authorRepository.findById(anyLong())).willReturn(Optional.empty());
 
         // When
-        AuthorResponseDto foundAuthor = authorService.findById(authorID);
+        AuthorFindResponseDto foundAuthor = authorService.findById(authorID);
 
         // Then
         assertThat(foundAuthor).isNull();
@@ -170,11 +211,11 @@ public class IAuthorServiceImplTest {
     @Test
     public void save_Author_NonExistingAuthor_Return_AuthorResponseDTO() {
         // Given
-        given(authorRepository.existsByPseudonym(authorRequestSaveVerne.getPseudonym())).willReturn(false);
-        given(authorRepository.save(authorSaveVerne)).willReturn(authorSavedVerne);
+        given(authorRepository.existsByPseudonym(authorSaveRequestVerne.getPseudonym())).willReturn(false);
+        given(authorRepository.save(authorToSaveVerne)).willReturn(authorSavedVerne);
 
         // When
-        AuthorResponseDto savedAuthor = authorService.save(authorRequestSaveVerne);
+        AuthorSaveResponseDto savedAuthor = authorService.save(authorSaveRequestVerne);
 
         // Then
         assertThat(savedAuthor).isNotNull();
@@ -190,7 +231,7 @@ public class IAuthorServiceImplTest {
         given(authorRepository.existsByPseudonym(anyString())).willReturn(true);
 
         // When
-        AuthorResponseDto savedAuthor = authorService.save(authorRequestSaveVerne);
+        AuthorSaveResponseDto savedAuthor = authorService.save(authorSaveRequestVerne);
 
         // Then
         assertThat(savedAuthor).isNull();
@@ -201,11 +242,11 @@ public class IAuthorServiceImplTest {
         // Given
         long authorId = 5L;
 
-        given(authorRepository.existsById(authorId)).willReturn(true);
-        given(authorRepository.save(authorUpdateVerne)).willReturn(authorUpdatedVerne);
+        given(authorRepository.findById(authorId)).willReturn(Optional.ofNullable(authorToUpdateVerne));
+        given(authorRepository.save(authorToUpdateVerne)).willReturn(authorUpdatedVerne);
 
         // When
-        AuthorResponseDto updatedAuthor = authorService.update(authorId, authorRequestUpdateVerne);
+        AuthorSaveResponseDto updatedAuthor = authorService.update(authorId, authorUpdateRequestVerne);
 
         // Then
         assertThat(updatedAuthor).isNotNull();
@@ -220,10 +261,10 @@ public class IAuthorServiceImplTest {
         // Given
         long authorId = 10L;
 
-        given(authorRepository.existsById(anyLong())).willReturn(false);
+        given(authorRepository.findById(authorId)).willReturn(Optional.empty());
 
         // When
-        AuthorResponseDto updatedAuthor = authorService.update(authorId, authorRequestUpdateVerne);
+        AuthorSaveResponseDto updatedAuthor = authorService.update(authorId, authorUpdateRequestVerne);
 
         // Then
         assertThat(updatedAuthor).isNull();

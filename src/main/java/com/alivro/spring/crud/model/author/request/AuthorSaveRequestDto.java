@@ -1,4 +1,4 @@
-package com.alivro.spring.crud.model.request;
+package com.alivro.spring.crud.model.author.request;
 
 import com.alivro.spring.crud.model.Author;
 import jakarta.validation.constraints.NotBlank;
@@ -12,7 +12,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class AuthorRequestDto {
+public class AuthorSaveRequestDto {
     @NotBlank(message = "El campo primer nombre es obligatorio.")
     @Size(min = 1, max = 100, message = "El campo primer nombre debe tener como máximo 100 caracteres.")
     private String firstName;
@@ -34,7 +34,7 @@ public class AuthorRequestDto {
      * @param author Información del autor
      * @return Representación Entity de la información del autor
      */
-    public static Author mapRequestDtoToEntity(AuthorRequestDto author) {
+    public static Author mapRequestDtoToEntity(AuthorSaveRequestDto author) {
         return Author.builder()
                 .firstName(author.getFirstName())
                 .middleName(author.getMiddleName())
@@ -50,7 +50,7 @@ public class AuthorRequestDto {
      * @param author Información del autor
      * @return Representación Entity de la información del autor
      */
-    public static Author mapRequestDtoToEntity(long id, AuthorRequestDto author) {
+    public static Author mapRequestDtoToEntity(long id, AuthorSaveRequestDto author) {
         return mapRequestDtoToEntity(author)
                 .toBuilder()
                 .id(id)

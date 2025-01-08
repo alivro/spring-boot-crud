@@ -1,9 +1,9 @@
 package com.alivro.spring.crud.controller;
 
 import com.alivro.spring.crud.handler.ResponseHandler;
-import com.alivro.spring.crud.model.request.BookRequestDTO;
-import com.alivro.spring.crud.model.response.BookResponseDTO;
-import com.alivro.spring.crud.services.IBookService;
+import com.alivro.spring.crud.model.book.request.BookSaveRequestDto;
+import com.alivro.spring.crud.model.book.response.BookResponseDto;
+import com.alivro.spring.crud.service.IBookService;
 import com.alivro.spring.crud.util.CustomResponse;
 import jakarta.validation.Valid;
 import org.slf4j.Logger;
@@ -38,8 +38,8 @@ public class BookController {
      * @return Información de todos los libros
      */
     @GetMapping("/findAll")
-    public ResponseEntity<CustomResponse<BookResponseDTO>> findAllBooks() {
-        List<BookResponseDTO> foundBooks = bookService.findAll();
+    public ResponseEntity<CustomResponse<BookResponseDto>> findAllBooks() {
+        List<BookResponseDto> foundBooks = bookService.findAll();
 
         logger.info("Libros encontrados.");
 
@@ -55,8 +55,8 @@ public class BookController {
      * @return Información del libro buscado
      */
     @GetMapping("/find/{id}")
-    public ResponseEntity<CustomResponse<BookResponseDTO>> findBook(@PathVariable("id") long id) {
-        BookResponseDTO foundBook = bookService.findById(id);
+    public ResponseEntity<CustomResponse<BookResponseDto>> findBook(@PathVariable("id") long id) {
+        BookResponseDto foundBook = bookService.findById(id);
 
         if (foundBook == null) {
             logger.info("Libro no encontrado. ID: {}", id);
@@ -80,8 +80,9 @@ public class BookController {
      * @return Información del libro guardado
      */
     @PostMapping("/save")
-    public ResponseEntity<CustomResponse<BookResponseDTO>> saveBook(@Valid @RequestBody BookRequestDTO book) {
-        BookResponseDTO savedBook = bookService.save(book);
+    public ResponseEntity<CustomResponse<BookResponseDto>> saveBook(
+            @Valid @RequestBody BookSaveRequestDto book) {
+        BookResponseDto savedBook = bookService.save(book);
 
         if (savedBook == null) {
             logger.info("Libro no guardado. ISBN-13: {}", book.getIsbn13());
@@ -106,8 +107,9 @@ public class BookController {
      * @return Información del libro actualizado
      */
     @PutMapping("/update/{id}")
-    public ResponseEntity<CustomResponse<BookResponseDTO>> updateBook(@PathVariable("id") long id, @Valid @RequestBody BookRequestDTO book) {
-        BookResponseDTO updatedBook = bookService.updateById(id, book);
+    public ResponseEntity<CustomResponse<BookResponseDto>> updateBook(
+            @PathVariable("id") long id, @Valid @RequestBody BookSaveRequestDto book) {
+        BookResponseDto updatedBook = bookService.update(id, book);
 
         if (updatedBook == null) {
             logger.info("Libro no actualizado. ID: {}", id);
@@ -131,7 +133,7 @@ public class BookController {
      * @return Estatus 200
      */
     @DeleteMapping("/delete/{id}")
-    public ResponseEntity<CustomResponse<BookResponseDTO>> deleteBook(@PathVariable("id") long id) {
+    public ResponseEntity<CustomResponse<BookResponseDto>> deleteBook(@PathVariable("id") long id) {
         bookService.deleteById(id);
 
         logger.info("Libro eliminado. ID: {}", id);
