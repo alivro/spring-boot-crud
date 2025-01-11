@@ -1,5 +1,7 @@
 package com.alivro.spring.crud.controller;
 
+import com.alivro.spring.crud.exception.DataAlreadyExistsException;
+import com.alivro.spring.crud.exception.DataNotFoundException;
 import com.alivro.spring.crud.model.book.request.AuthorOfBookRequestDto;
 import com.alivro.spring.crud.model.book.request.BookSaveRequestDto;
 import com.alivro.spring.crud.model.book.response.AuthorOfBookResponseDto;
@@ -184,12 +186,12 @@ public class BookControllerTest {
     @Test
     public void findById_Book_ExistingBook_Return_Ok() throws Exception {
         //Given
-        long bookID = 1L;
+        long bookId = 1L;
 
-        given(bookService.findById(bookID)).willReturn(bookResponseBadBeginning);
+        given(bookService.findById(bookId)).willReturn(bookResponseBadBeginning);
 
         // When
-        ResultActions response = mockMvc.perform(get("/api/book/find/{id}", bookID));
+        ResultActions response = mockMvc.perform(get("/api/book/find/{id}", bookId));
 
         // Then
         response.andExpect(MockMvcResultMatchers.status().isOk())
@@ -208,17 +210,30 @@ public class BookControllerTest {
     @Test
     public void findById_Book_NonExistingBook_Return_NotFound() throws Exception {
         //Given
-        long bookID = 10L;
+        long bookId = 10L;
 
-        given(bookService.findById(anyLong())).willReturn(null);
+        given(bookService.findById(anyLong())).
+                willThrow(new DataNotFoundException("Book not found!"));
 
         // When
-        ResultActions response = mockMvc.perform(get("/api/book/find/{id}", bookID));
+        ResultActions response = mockMvc.perform(get("/api/book/find/{id}", bookId));
 
         // Then
         response.andExpect(MockMvcResultMatchers.status().isNotFound())
-                .andExpect(MockMvcResultMatchers.jsonPath("$.message",
+                .andExpect(MockMvcResultMatchers.jsonPath("$.error",
                         CoreMatchers.is("Book not found!")));
+    }
+
+    @Test
+    public void findById_Book_StringId_Return_InternalServerError() throws Exception {
+        //Given
+        String bookId = "one";
+
+        // When
+        ResultActions response = mockMvc.perform(get("/api/book/find/{id}", bookId));
+
+        // Then
+        response.andExpect(MockMvcResultMatchers.status().isInternalServerError());
     }
 
     @Test
@@ -249,7 +264,8 @@ public class BookControllerTest {
     @Test
     public void save_Book_ExistingBook_Return_Conflict() throws Exception {
         // Given
-        given(bookService.save(any(BookSaveRequestDto.class))).willReturn(null);
+        given(bookService.save(any(BookSaveRequestDto.class))).
+                willThrow(new DataAlreadyExistsException("Book already exists!"));
 
         // When
         ResultActions response = mockMvc.perform(post("/api/book/save")
@@ -258,12 +274,12 @@ public class BookControllerTest {
 
         // Then
         response.andExpect(MockMvcResultMatchers.status().isConflict())
-                .andExpect(MockMvcResultMatchers.jsonPath("$.message",
-                        CoreMatchers.is("Book not saved!")));
+                .andExpect(MockMvcResultMatchers.jsonPath("$.error",
+                        CoreMatchers.is("Book already exists!")));
     }
 
     @Test
-    public void updateExistingBookReturnIsOk() throws Exception {
+    public void update_Book_ExistingBook_Return_Ok() throws Exception {
         // Given
         long bookId = 5L;
 
@@ -294,8 +310,8 @@ public class BookControllerTest {
         // Given
         long bookId = 10L;
 
-        given(bookService.update(anyLong(), any(BookSaveRequestDto.class))).willReturn(null);
-
+        given(bookService.update(anyLong(), any(BookSaveRequestDto.class)))
+                .willThrow(new DataNotFoundException("Book does not exist!"));
         // When
         ResultActions response = mockMvc.perform(put("/api/book/update/{id}", bookId)
                 .contentType(MediaType.APPLICATION_JSON)
@@ -303,8 +319,8 @@ public class BookControllerTest {
 
         // Then
         response.andExpect(MockMvcResultMatchers.status().isNotFound())
-                .andExpect(MockMvcResultMatchers.jsonPath("$.message",
-                        CoreMatchers.is("Book not updated!")));
+                .andExpect(MockMvcResultMatchers.jsonPath("$.error",
+                        CoreMatchers.is("Book does not exist!")));
     }
 
     @Test

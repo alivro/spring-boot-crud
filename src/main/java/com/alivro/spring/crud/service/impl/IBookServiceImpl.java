@@ -1,5 +1,7 @@
 package com.alivro.spring.crud.service.impl;
 
+import com.alivro.spring.crud.exception.DataAlreadyExistsException;
+import com.alivro.spring.crud.exception.DataNotFoundException;
 import com.alivro.spring.crud.model.Book;
 import com.alivro.spring.crud.model.book.request.BookSaveRequestDto;
 import com.alivro.spring.crud.model.book.response.BookResponseDto;
@@ -56,8 +58,13 @@ public class IBookServiceImpl implements IBookService {
 
         Optional<Book> foundBook = bookRepository.findById(id);
 
-        return foundBook.map(BookResponseDto::mapEntityToResponseDto)
-                .orElse(null);
+        if (foundBook.isEmpty()) {
+            logger.info("Libro no encontrado. ID: {}", id);
+
+            throw new DataNotFoundException("Book not found!");
+        }
+
+        return BookResponseDto.mapEntityToResponseDto(foundBook.get());
     }
 
     /**
@@ -68,17 +75,20 @@ public class IBookServiceImpl implements IBookService {
      */
     @Override
     public BookResponseDto save(BookSaveRequestDto book) {
-        logger.info("Busca libro. ISBN-13: {}", book.getIsbn13());
+        String isbn13 = book.getIsbn13();
+
+        logger.info("Busca libro. ISBN-13: {}", isbn13);
 
         // Verifica si ya existe un libro con el mismo ISBN-13
-        if (bookRepository.existsByIsbn13(book.getIsbn13())) {
-            logger.info("Libro existente. ISBN-13: {}", book.getIsbn13());
+        if (bookRepository.existsByIsbn13(isbn13)) {
+            logger.info("Libro existente. ISBN-13: {}", isbn13);
+            logger.info("Libro no guardado. ISBN-13: {}", isbn13);
 
-            return null;
+            throw new DataAlreadyExistsException("Book already exists!");
         }
 
-        logger.info("Libro no existente. ISBN-13: {}", book.getIsbn13());
-        logger.info("Guarda libro. ISBN-13: {}", book.getIsbn13());
+        logger.info("Libro no existente. ISBN-13: {}", isbn13);
+        logger.info("Guarda libro. ISBN-13: {}", isbn13);
 
         // Guarda la información del nuevo libro
         Book savedBook = bookRepository.save(
@@ -104,8 +114,9 @@ public class IBookServiceImpl implements IBookService {
         // Verifica si existe un libro con ese id
         if (foundBook.isEmpty()) {
             logger.info("Libro no existente. ID: {}", id);
+            logger.info("Libro no actualizado. ID: {}", id);
 
-            return null;
+            throw new DataNotFoundException("Book does not exist!");
         }
 
         // Información del libro a actualizar

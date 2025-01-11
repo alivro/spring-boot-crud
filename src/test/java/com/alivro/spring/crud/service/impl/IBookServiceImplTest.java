@@ -1,5 +1,7 @@
 package com.alivro.spring.crud.service.impl;
 
+import com.alivro.spring.crud.exception.DataAlreadyExistsException;
+import com.alivro.spring.crud.exception.DataNotFoundException;
 import com.alivro.spring.crud.model.Author;
 import com.alivro.spring.crud.model.Book;
 import com.alivro.spring.crud.model.book.request.AuthorOfBookRequestDto;
@@ -20,6 +22,9 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.BDDMockito.given;
@@ -99,7 +104,7 @@ public class IBookServiceImplTest {
                 .isbn13("9780064407694")
                 .build();
 
-        AuthorOfBookRequestDto booksAuthorRequestSnicket = AuthorOfBookRequestDto.builder()
+        AuthorOfBookRequestDto authorOfBookRequestSnicket = AuthorOfBookRequestDto.builder()
                 .id(1L)
                 .pseudonym("Lemony Snicket")
                 .build();
@@ -107,7 +112,7 @@ public class IBookServiceImplTest {
         bookSaveRequestAustereAcademy = BookSaveRequestDto.builder()
                 .title("A Series of Fortunate Events")
                 .subtitle("The Ostentatious Academy")
-                .authors(Collections.singletonList(booksAuthorRequestSnicket))
+                .authors(Collections.singletonList(authorOfBookRequestSnicket))
                 .totalPages(231)
                 .publisher("HarperCollins")
                 .publishedDate(LocalDate.parse("2009-10-13"))
@@ -121,7 +126,7 @@ public class IBookServiceImplTest {
         bookUpdateRequestAustereAcademy = BookSaveRequestDto.builder()
                 .title("A Series of Unfortunate Events")
                 .subtitle("The Austere Academy")
-                .authors(Collections.singletonList(booksAuthorRequestSnicket))
+                .authors(Collections.singletonList(authorOfBookRequestSnicket))
                 .totalPages(231)
                 .publisher("HarperCollins")
                 .publishedDate(LocalDate.parse("2009-10-13"))
@@ -186,6 +191,8 @@ public class IBookServiceImplTest {
         assertThat(foundBook.getSubtitle()).isEqualTo("The Bad Beginning");
         assertThat(foundBook.getTotalPages()).isEqualTo(176);
         assertThat(foundBook.getIsbn13()).isEqualTo("9780064407663");
+        assertThat(foundBook.getAuthors().size()).isEqualTo(1);
+        assertThat(foundBook.getAuthors().get(0).getPseudonym()).isEqualTo("Lemony Snicket");
     }
 
     @Test
@@ -196,10 +203,11 @@ public class IBookServiceImplTest {
         given(bookRepository.findById(anyLong())).willReturn(Optional.empty());
 
         // When
-        BookResponseDto foundBook = bookService.findById(bookId);
+        Throwable thrown = assertThrows(DataNotFoundException.class,
+                () -> bookService.findById(bookId));
 
         // Then
-        assertThat(foundBook).isNull();
+        assertThat(thrown.getMessage(), is("Book not found!"));
     }
 
     @Test
@@ -225,10 +233,11 @@ public class IBookServiceImplTest {
         given(bookRepository.existsByIsbn13(anyString())).willReturn(true);
 
         // When
-        BookResponseDto savedBook = bookService.save(bookSaveRequestAustereAcademy);
+        Throwable thrown = assertThrows(DataAlreadyExistsException.class,
+                () -> bookService.save(bookSaveRequestAustereAcademy));
 
         // Then
-        assertThat(savedBook).isNull();
+        assertThat(thrown.getMessage(), is("Book already exists!"));
     }
 
     @Test
@@ -253,28 +262,29 @@ public class IBookServiceImplTest {
     @Test
     public void update_Book_NonExistingBook_Return_Null() {
         // Given
-        long bookID = 10L;
+        long bookId = 10L;
 
         given(bookRepository.findById(anyLong())).willReturn(Optional.empty());
 
         // When
-        BookResponseDto updatedBook = bookService.update(bookID, bookUpdateRequestAustereAcademy);
+        Throwable thrown = assertThrows(DataNotFoundException.class,
+                () -> bookService.update(bookId, bookUpdateRequestAustereAcademy));
 
         // Then
-        assertThat(updatedBook).isNull();
+        assertThat(thrown.getMessage(), is("Book does not exist!"));
     }
 
     @Test
     public void deleteById_Book_NoReturn() {
         // Given
-        long bookID = 1L;
+        long bookId = 1L;
 
         willDoNothing().given(bookRepository).deleteById(anyLong());
 
         // When
-        bookService.deleteById(bookID);
+        bookService.deleteById(bookId);
 
         // Then
-        verify(bookRepository, times(1)).deleteById(bookID);
+        verify(bookRepository, times(1)).deleteById(bookId);
     }
 }

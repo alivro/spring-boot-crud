@@ -1,11 +1,14 @@
 package com.alivro.spring.crud.service.impl;
 
+import com.alivro.spring.crud.exception.DataAlreadyExistsException;
+import com.alivro.spring.crud.exception.DataNotFoundException;
 import com.alivro.spring.crud.model.Author;
 import com.alivro.spring.crud.model.Book;
 import com.alivro.spring.crud.model.author.request.AuthorSaveRequestDto;
 import com.alivro.spring.crud.model.author.response.AuthorFindResponseDto;
 import com.alivro.spring.crud.model.author.response.AuthorSaveResponseDto;
 import com.alivro.spring.crud.repository.AuthorRepository;
+import org.hamcrest.MatcherAssert;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -20,6 +23,8 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.hamcrest.CoreMatchers.is;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.BDDMockito.given;
@@ -56,29 +61,34 @@ public class IAuthorServiceImplTest {
                 .publisher("Berkley")
                 .publishedDate(LocalDate.parse("2003-05-06"))
                 .isbn13("'9780452284234'")
-                .isbn10(null)
                 .build();
 
         Book bookTimeMachine = Book.builder()
                 .id(2L)
                 .title("The Time Machine")
-                .subtitle(null)
                 .totalPages(128)
                 .publisher("Penguin Classics")
                 .publishedDate(LocalDate.parse("2005-05-31"))
                 .isbn13("9780141439976")
-                .isbn10(null)
                 .build();
 
         Book bookBraveWorld = Book.builder()
                 .id(3L)
                 .title("Brave New World")
-                .subtitle(null)
                 .totalPages(272)
                 .publisher("Harper")
                 .publishedDate(LocalDate.parse("2017-05-09"))
                 .isbn13("9780062696120")
                 .isbn10("0062696122")
+                .build();
+
+        Book bookAliceWonderland = Book.builder()
+                .id(4L)
+                .title("Alice''s Adventures in Wonderland")
+                .totalPages(64)
+                .publisher("'Penguin'")
+                .publishedDate(LocalDate.parse("2023-02-02"))
+                .isbn13("9780241588864")
                 .build();
 
         authorOrwell = Author.builder()
@@ -114,7 +124,7 @@ public class IAuthorServiceImplTest {
                 .middleName("Lutwidge")
                 .lastName("Dodgson")
                 .pseudonym("Lewis Carroll")
-                .books(new ArrayList<>())
+                .books(Collections.singletonList(bookAliceWonderland))
                 .build();
 
         authorSaveRequestVerne = AuthorSaveRequestDto.builder()
@@ -192,6 +202,8 @@ public class IAuthorServiceImplTest {
         assertThat(foundAuthor.getFirstName()).isEqualTo("Eric");
         assertThat(foundAuthor.getLastName()).isEqualTo("Blair");
         assertThat(foundAuthor.getPseudonym()).isEqualTo("George Orwell");
+        assertThat(foundAuthor.getBooks().size()).isEqualTo(1);
+        assertThat(foundAuthor.getBooks().get(0).getTitle()).isEqualTo("1984");
     }
 
     @Test
@@ -202,10 +214,11 @@ public class IAuthorServiceImplTest {
         given(authorRepository.findById(anyLong())).willReturn(Optional.empty());
 
         // When
-        AuthorFindResponseDto foundAuthor = authorService.findById(authorID);
+        Throwable thrown = assertThrows(DataNotFoundException.class,
+                () -> authorService.findById(authorID));
 
         // Then
-        assertThat(foundAuthor).isNull();
+        MatcherAssert.assertThat(thrown.getMessage(), is("Author not found!"));
     }
 
     @Test
@@ -231,10 +244,11 @@ public class IAuthorServiceImplTest {
         given(authorRepository.existsByPseudonym(anyString())).willReturn(true);
 
         // When
-        AuthorSaveResponseDto savedAuthor = authorService.save(authorSaveRequestVerne);
+        Throwable thrown = assertThrows(DataAlreadyExistsException.class,
+                () -> authorService.save(authorSaveRequestVerne));
 
         // Then
-        assertThat(savedAuthor).isNull();
+        MatcherAssert.assertThat(thrown.getMessage(), is("Author already exists!"));
     }
 
     @Test
@@ -264,10 +278,11 @@ public class IAuthorServiceImplTest {
         given(authorRepository.findById(authorId)).willReturn(Optional.empty());
 
         // When
-        AuthorSaveResponseDto updatedAuthor = authorService.update(authorId, authorUpdateRequestVerne);
+        Throwable thrown = assertThrows(DataNotFoundException.class,
+                () -> authorService.update(authorId, authorUpdateRequestVerne));
 
         // Then
-        assertThat(updatedAuthor).isNull();
+        MatcherAssert.assertThat(thrown.getMessage(), is("Author does not exist!"));
     }
 
     @Test

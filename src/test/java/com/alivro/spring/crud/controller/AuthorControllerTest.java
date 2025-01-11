@@ -1,5 +1,7 @@
 package com.alivro.spring.crud.controller;
 
+import com.alivro.spring.crud.exception.DataAlreadyExistsException;
+import com.alivro.spring.crud.exception.DataNotFoundException;
 import com.alivro.spring.crud.model.author.request.AuthorSaveRequestDto;
 import com.alivro.spring.crud.model.author.response.AuthorFindResponseDto;
 import com.alivro.spring.crud.model.author.response.AuthorSaveResponseDto;
@@ -180,12 +182,12 @@ public class AuthorControllerTest {
     @Test
     public void findById_Author_ExistingAuthor_Return_Ok() throws Exception {
         //Given
-        long authorID = 1L;
+        long authorId = 1L;
 
-        given(authorService.findById(authorID)).willReturn(authorResponseOrwell);
+        given(authorService.findById(authorId)).willReturn(authorResponseOrwell);
 
         // When
-        ResultActions response = mockMvc.perform(get("/api/author/find/{id}", authorID));
+        ResultActions response = mockMvc.perform(get("/api/author/find/{id}", authorId));
 
         // Then
         response.andExpect(MockMvcResultMatchers.status().isOk())
@@ -200,23 +202,38 @@ public class AuthorControllerTest {
                 .andExpect(MockMvcResultMatchers.jsonPath("$.data[0].lastName",
                         CoreMatchers.is(authorResponseOrwell.getLastName())))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.data[0].pseudonym",
-                        CoreMatchers.is(authorResponseOrwell.getPseudonym())));
+                        CoreMatchers.is(authorResponseOrwell.getPseudonym())))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.data[0].books[0].title",
+                        CoreMatchers.is(authorResponseOrwell.getBooks().get(0).getTitle())));
     }
 
     @Test
     public void findById_Author_NonExistingAuthor_Return_NotFound() throws Exception {
         //Given
-        long authorID = 10L;
+        long authorId = 10L;
 
-        given(authorService.findById(authorID)).willReturn(null);
+        given(authorService.findById(authorId))
+                .willThrow(new DataNotFoundException("Author not found!"));
 
         // When
-        ResultActions response = mockMvc.perform(get("/api/author/find/{id}", authorID));
+        ResultActions response = mockMvc.perform(get("/api/author/find/{id}", authorId));
 
         // Then
         response.andExpect(MockMvcResultMatchers.status().isNotFound())
-                .andExpect(MockMvcResultMatchers.jsonPath("$.message",
+                .andExpect(MockMvcResultMatchers.jsonPath("$.error",
                         CoreMatchers.is("Author not found!")));
+    }
+
+    @Test
+    public void findById_Author_StringId_Return_InternalServerError() throws Exception {
+        //Given
+        String authorId = "one";
+
+        // When
+        ResultActions response = mockMvc.perform(get("/api/author/find/{id}", authorId));
+
+        // Then
+        response.andExpect(MockMvcResultMatchers.status().isInternalServerError());
     }
 
     @Test
@@ -247,7 +264,8 @@ public class AuthorControllerTest {
     @Test
     public void save_Author_ExistingAuthor_Return_Conflict() throws Exception {
         // Given
-        given(authorService.save(any(AuthorSaveRequestDto.class))).willReturn(null);
+        given(authorService.save(any(AuthorSaveRequestDto.class)))
+                .willThrow(new DataAlreadyExistsException("Author already exists!"));
 
         // When
         ResultActions response = mockMvc.perform(post("/api/author/save")
@@ -256,8 +274,8 @@ public class AuthorControllerTest {
 
         // Then
         response.andExpect(MockMvcResultMatchers.status().isConflict())
-                .andExpect(MockMvcResultMatchers.jsonPath("$.message",
-                        CoreMatchers.is("Author not saved!")));
+                .andExpect(MockMvcResultMatchers.jsonPath("$.error",
+                        CoreMatchers.is("Author already exists!")));
     }
 
     @Test
@@ -292,7 +310,8 @@ public class AuthorControllerTest {
         // Given
         long authorId = 10L;
 
-        given(authorService.update(anyLong(), any(AuthorSaveRequestDto.class))).willReturn(null);
+        given(authorService.update(anyLong(), any(AuthorSaveRequestDto.class)))
+                .willThrow(new DataNotFoundException("Author does not exist!"));
 
         // When
         ResultActions response = mockMvc.perform(put("/api/author/update/{id}", authorId)
@@ -301,8 +320,8 @@ public class AuthorControllerTest {
 
         // Then
         response.andExpect(MockMvcResultMatchers.status().isNotFound())
-                .andExpect(MockMvcResultMatchers.jsonPath("$.message",
-                        CoreMatchers.is("Author not updated!")));
+                .andExpect(MockMvcResultMatchers.jsonPath("$.error",
+                        CoreMatchers.is("Author does not exist!")));
     }
 
     @Test

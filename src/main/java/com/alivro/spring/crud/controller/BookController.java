@@ -58,14 +58,6 @@ public class BookController {
     public ResponseEntity<CustomResponse<BookResponseDto>> findBook(@PathVariable("id") long id) {
         BookResponseDto foundBook = bookService.findById(id);
 
-        if (foundBook == null) {
-            logger.info("Libro no encontrado. ID: {}", id);
-
-            return ResponseHandler.sendResponse(
-                    HttpStatus.NOT_FOUND, "Book not found!", null
-            );
-        }
-
         logger.info("Libro encontrado. ID: {}", id);
 
         return ResponseHandler.sendResponse(
@@ -83,14 +75,6 @@ public class BookController {
     public ResponseEntity<CustomResponse<BookResponseDto>> saveBook(
             @Valid @RequestBody BookSaveRequestDto book) {
         BookResponseDto savedBook = bookService.save(book);
-
-        if (savedBook == null) {
-            logger.info("Libro no guardado. ISBN-13: {}", book.getIsbn13());
-
-            return ResponseHandler.sendResponse(
-                    HttpStatus.CONFLICT, "Book not saved!", null
-            );
-        }
 
         logger.info("Libro guardado. ID: {}", savedBook.getId());
 
@@ -110,14 +94,6 @@ public class BookController {
     public ResponseEntity<CustomResponse<BookResponseDto>> updateBook(
             @PathVariable("id") long id, @Valid @RequestBody BookSaveRequestDto book) {
         BookResponseDto updatedBook = bookService.update(id, book);
-
-        if (updatedBook == null) {
-            logger.info("Libro no actualizado. ID: {}", id);
-
-            return ResponseHandler.sendResponse(
-                    HttpStatus.NOT_FOUND, "Book not updated!", null
-            );
-        }
 
         logger.info("Libro actualizado. ID: {}", id);
 

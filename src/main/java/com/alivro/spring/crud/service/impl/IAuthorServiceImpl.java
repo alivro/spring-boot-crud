@@ -1,5 +1,7 @@
 package com.alivro.spring.crud.service.impl;
 
+import com.alivro.spring.crud.exception.DataAlreadyExistsException;
+import com.alivro.spring.crud.exception.DataNotFoundException;
 import com.alivro.spring.crud.model.Author;
 import com.alivro.spring.crud.model.author.request.AuthorSaveRequestDto;
 import com.alivro.spring.crud.model.author.response.AuthorFindResponseDto;
@@ -57,8 +59,13 @@ public class IAuthorServiceImpl implements IAuthorService {
 
         Optional<Author> foundAuthor = authorRepository.findById(id);
 
-        return foundAuthor.map(AuthorFindResponseDto::mapEntityToResponseDto)
-                .orElse(null);
+        if (foundAuthor.isEmpty()) {
+            logger.info("Autor no encontrado. ID: {}", id);
+
+            throw new DataNotFoundException("Author not found!");
+        }
+
+        return AuthorFindResponseDto.mapEntityToResponseDto(foundAuthor.get());
     }
 
     /**
@@ -76,8 +83,9 @@ public class IAuthorServiceImpl implements IAuthorService {
         // Verifica si ya existe un autor con el mismo pseudónimo
         if (authorRepository.existsByPseudonym(pseudonym)) {
             logger.info("Autor existente. Pseudónimo: {}", pseudonym);
+            logger.info("Autor no guardado. Pseudónimo: {}", pseudonym);
 
-            return null;
+            throw new DataAlreadyExistsException("Author already exists!");
         }
 
         logger.info("Autor no existente. Pseudónimo: {}", pseudonym);
@@ -107,8 +115,9 @@ public class IAuthorServiceImpl implements IAuthorService {
         // Verifica si existe un autor con ese id
         if (foundAuthor.isEmpty()) {
             logger.info("Autor no existente. ID: {}", id);
+            logger.info("Autor no actualizado. ID: {}", id);
 
-            return null;
+            throw new DataNotFoundException("Author does not exist!");
         }
 
         // Información del autor a actualizar

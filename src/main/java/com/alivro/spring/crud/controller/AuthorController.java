@@ -59,14 +59,6 @@ public class AuthorController {
     public ResponseEntity<CustomResponse<AuthorFindResponseDto>> findAuthor(@PathVariable("id") long id) {
         AuthorFindResponseDto foundAuthor = authorService.findById(id);
 
-        if (foundAuthor == null) {
-            logger.info("Autor no encontrado. ID: {}", id);
-
-            return ResponseHandler.sendResponse(
-                    HttpStatus.NOT_FOUND, "Author not found!", null
-            );
-        }
-
         logger.info("Autor encontrado. ID: {}", id);
 
         return ResponseHandler.sendResponse(
@@ -84,14 +76,6 @@ public class AuthorController {
     public ResponseEntity<CustomResponse<AuthorSaveResponseDto>> saveAuthor(
             @Valid @RequestBody AuthorSaveRequestDto author) {
         AuthorSaveResponseDto savedAuthor = authorService.save(author);
-
-        if (savedAuthor == null) {
-            logger.info("Autor no guardado. Pseudónimo: {}", author.getPseudonym());
-
-            return ResponseHandler.sendResponse(
-                    HttpStatus.CONFLICT, "Author not saved!", null
-            );
-        }
 
         logger.info("Autor guardado. ID: {}", savedAuthor.getId());
 
@@ -111,14 +95,6 @@ public class AuthorController {
     public ResponseEntity<CustomResponse<AuthorSaveResponseDto>> updateAuthor(
             @PathVariable("id") long id, @Valid @RequestBody AuthorSaveRequestDto author) {
         AuthorSaveResponseDto updatedAuthor = authorService.update(id, author);
-
-        if (updatedAuthor == null) {
-            logger.info("Autor no actualizado. ID: {}", id);
-
-            return ResponseHandler.sendResponse(
-                    HttpStatus.NOT_FOUND, "Author not updated!", null
-            );
-        }
 
         logger.info("Autor actualizado. ID: {}", id);
 
