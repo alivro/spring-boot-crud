@@ -10,6 +10,8 @@ import com.alivro.spring.crud.service.IBookService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -36,10 +38,10 @@ public class IBookServiceImpl implements IBookService {
      * @return Información de todos los libros
      */
     @Override
-    public List<BookResponseDto> findAll() {
+    public List<BookResponseDto> findAll(Pageable pageable) {
         logger.info("Busca todos los libros.");
 
-        List<Book> foundBooks = bookRepository.findAll();
+        Page<Book> foundBooks = bookRepository.findAll(pageable);
 
         return foundBooks.stream()
                 .map(BookResponseDto::mapEntityToResponseDto)

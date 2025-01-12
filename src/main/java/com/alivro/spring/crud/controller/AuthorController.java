@@ -10,6 +10,9 @@ import jakarta.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -39,8 +42,10 @@ public class AuthorController {
      * @return Información de todos los autores
      */
     @GetMapping("/findAll")
-    public ResponseEntity<CustomResponse<AuthorFindResponseDto>> findAllAuthors() {
-        List<AuthorFindResponseDto> foundAuthors = authorService.findAll();
+    public ResponseEntity<CustomResponse<AuthorFindResponseDto>> findAllAuthors(
+            @PageableDefault(page = 0, size = 5, sort = "id", direction = Sort.Direction.ASC)
+            Pageable pageable) {
+        List<AuthorFindResponseDto> foundAuthors = authorService.findAll(pageable);
 
         logger.info("Autores encontrados.");
 

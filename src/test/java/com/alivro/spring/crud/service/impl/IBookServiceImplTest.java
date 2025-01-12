@@ -14,6 +14,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.*;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -139,36 +140,92 @@ public class IBookServiceImplTest {
     }
 
     @Test
-    public void findAll_Books_ExistingBooks_Return_ListBookResponseDTO() {
+    public void findAllBySubtitleDesc_Books_ExistingBooks_Return_ListBookResponseDTO() {
         // Given
+        int pageNumber = 0;
+        int pageSize = 4;
+        String sortBy = "subtitle";
+
         List<Book> books = new ArrayList<>();
         books.add(bookBadBeginning);
+        books.add(bookMiserableMill);
         books.add(bookReptileRoom);
         books.add(bookWideWindow);
-        books.add(bookMiserableMill);
 
-        given(bookRepository.findAll()).willReturn(books);
+        Pageable pageable = PageRequest.ofSize(pageSize)
+                .withPage(pageNumber)
+                .withSort(Sort.by(sortBy).descending());
+        Page<Book> booksPage = new PageImpl<>(books, pageable, books.size());
+
+        given(bookRepository.findAll(pageable)).willReturn(booksPage);
 
         // When
-        List<BookResponseDto> foundBooks = bookService.findAll();
+        List<BookResponseDto> foundBooks = bookService.findAll(
+                PageRequest.of(0, 4, Sort.by("subtitle").descending())
+        );
 
         // Then
         assertThat(foundBooks.size()).isEqualTo(4);
         assertThat(foundBooks.get(0).getSubtitle()).isEqualTo("The Bad Beginning");
+        assertThat(foundBooks.get(1).getSubtitle()).isEqualTo("The Miserable Mill");
+        assertThat(foundBooks.get(2).getSubtitle()).isEqualTo("The Reptile Room");
+        assertThat(foundBooks.get(3).getSubtitle()).isEqualTo("The Wide Window");
+
+    }
+
+    @Test
+    public void findAllBySubtitleAsc_Books_ExistingBooks_Return_ListBookResponseDTO() {
+        // Given
+        int pageNumber = 0;
+        int pageSize = 4;
+        String sortBy = "subtitle";
+
+        List<Book> books = new ArrayList<>();
+        books.add(bookWideWindow);
+        books.add(bookReptileRoom);
+        books.add(bookMiserableMill);
+        books.add(bookBadBeginning);
+
+        Pageable pageable = PageRequest.ofSize(pageSize)
+                .withPage(pageNumber)
+                .withSort(Sort.by(sortBy).ascending());
+        Page<Book> booksPage = new PageImpl<>(books, pageable, books.size());
+
+        given(bookRepository.findAll(pageable)).willReturn(booksPage);
+
+        // When
+        List<BookResponseDto> foundBooks = bookService.findAll(
+                PageRequest.of(0, 4, Sort.by("subtitle").ascending())
+        );
+
+        // Then
+        assertThat(foundBooks.size()).isEqualTo(4);
+        assertThat(foundBooks.get(0).getSubtitle()).isEqualTo("The Wide Window");
         assertThat(foundBooks.get(1).getSubtitle()).isEqualTo("The Reptile Room");
-        assertThat(foundBooks.get(2).getSubtitle()).isEqualTo("The Wide Window");
-        assertThat(foundBooks.get(3).getSubtitle()).isEqualTo("The Miserable Mill");
+        assertThat(foundBooks.get(2).getSubtitle()).isEqualTo("The Miserable Mill");
+        assertThat(foundBooks.get(3).getSubtitle()).isEqualTo("The Bad Beginning");
     }
 
     @Test
     public void findAll_Books_NonExistingBooks_Return_EmptyListBookResponseDTO() {
         // Given
+        int pageNumber = 0;
+        int pageSize = 4;
+        String sortBy = "id";
+
         List<Book> books = new ArrayList<>();
 
-        given(bookRepository.findAll()).willReturn(books);
+        Pageable pageable = PageRequest.ofSize(pageSize)
+                .withPage(pageNumber)
+                .withSort(Sort.by(sortBy).ascending());
+        Page<Book> booksPage = new PageImpl<>(books, pageable, books.size());
+
+        given(bookRepository.findAll(pageable)).willReturn(booksPage);
 
         // When
-        List<BookResponseDto> foundBooks = bookService.findAll();
+        List<BookResponseDto> foundBooks = bookService.findAll(
+                PageRequest.of(0, 4, Sort.by("id").ascending())
+        );
 
         // Then
         assertThat(foundBooks).isEmpty();

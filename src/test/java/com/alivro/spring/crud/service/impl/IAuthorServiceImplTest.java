@@ -15,6 +15,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.*;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -42,10 +43,10 @@ public class IAuthorServiceImplTest {
 
     private static AuthorSaveRequestDto authorSaveRequestVerne;
     private static AuthorSaveRequestDto authorUpdateRequestVerne;
-    private static Author authorOrwell;
-    private static Author authorWells;
-    private static Author authorHuxley;
-    private static Author authorCarroll;
+    private static Author authorGeorgeOrwell;
+    private static Author authorHGWells;
+    private static Author authorAldousHuxley;
+    private static Author authorLewisCarroll;
     private static Author authorToSaveVerne;
     private static Author authorSavedVerne;
     private static Author authorToUpdateVerne;
@@ -91,7 +92,7 @@ public class IAuthorServiceImplTest {
                 .isbn13("9780241588864")
                 .build();
 
-        authorOrwell = Author.builder()
+        authorGeorgeOrwell = Author.builder()
                 .id(1L)
                 .firstName("Eric")
                 .middleName("Arthur")
@@ -100,7 +101,7 @@ public class IAuthorServiceImplTest {
                 .books(Collections.singletonList(book1984))
                 .build();
 
-        authorWells = Author.builder()
+        authorHGWells = Author.builder()
                 .id(2L)
                 .firstName("Herbert")
                 .middleName("George")
@@ -109,7 +110,7 @@ public class IAuthorServiceImplTest {
                 .books(Collections.singletonList(bookTimeMachine))
                 .build();
 
-        authorHuxley = Author.builder()
+        authorAldousHuxley = Author.builder()
                 .id(3L)
                 .firstName("Aldous")
                 .middleName("Leonard")
@@ -118,7 +119,7 @@ public class IAuthorServiceImplTest {
                 .books(Collections.singletonList(bookBraveWorld))
                 .build();
 
-        authorCarroll = Author.builder()
+        authorLewisCarroll = Author.builder()
                 .id(4L)
                 .firstName("Charles")
                 .middleName("Lutwidge")
@@ -151,36 +152,90 @@ public class IAuthorServiceImplTest {
     }
 
     @Test
-    public void findAll_Authors_ExistingAuthors_Return_ListAuthorResponseDTO() {
+    public void findAllByPseudonymAsc_Authors_ExistingAuthors_Return_ListAuthorResponseDTO() {
         // Given
-        List<Author> authors = new ArrayList<>();
-        authors.add(authorOrwell);
-        authors.add(authorWells);
-        authors.add(authorHuxley);
-        authors.add(authorCarroll);
+        int pageNumber = 0;
+        int pageSize = 4;
+        String sortBy = "pseudonym";
 
-        given(authorRepository.findAll()).willReturn(authors);
+        List<Author> authors = new ArrayList<>();
+        authors.add(authorAldousHuxley);
+        authors.add(authorGeorgeOrwell);
+        authors.add(authorHGWells);
+        authors.add(authorLewisCarroll);
+
+        Pageable pageable = PageRequest.ofSize(pageSize)
+                .withPage(pageNumber)
+                .withSort(Sort.by(sortBy).descending());
+        Page<Author> authorsPage = new PageImpl<>(authors, pageable, authors.size());
+
+        given(authorRepository.findAll(pageable)).willReturn(authorsPage);
 
         // When
-        List<AuthorFindResponseDto> foundAuthors = authorService.findAll();
+        List<AuthorFindResponseDto> foundAuthors = authorService.findAll(
+                PageRequest.of(0, 4, Sort.by("pseudonym").descending())
+        );
 
         // Then
         assertThat(foundAuthors.size()).isEqualTo(4);
-        assertThat(foundAuthors.get(0).getPseudonym()).isEqualTo("George Orwell");
-        assertThat(foundAuthors.get(1).getPseudonym()).isEqualTo("H. G. Wells");
-        assertThat(foundAuthors.get(2).getPseudonym()).isEqualTo("Aldous Huxley");
+        assertThat(foundAuthors.get(0).getPseudonym()).isEqualTo("Aldous Huxley");
+        assertThat(foundAuthors.get(1).getPseudonym()).isEqualTo("George Orwell");
+        assertThat(foundAuthors.get(2).getPseudonym()).isEqualTo("H. G. Wells");
         assertThat(foundAuthors.get(3).getPseudonym()).isEqualTo("Lewis Carroll");
     }
 
     @Test
-    public void findAll_Authors_NonExistingAuthors_Return_EmptyListAuthorResponseDTO() {
+    public void findAllByPseudonymDesc_Authors_ExistingAuthors_Return_ListAuthorResponseDTO() {
         // Given
-        List<Author> authors = new ArrayList<>();
+        int pageNumber = 0;
+        int pageSize = 4;
+        String sortBy = "pseudonym";
 
-        given(authorRepository.findAll()).willReturn(authors);
+        List<Author> authors = new ArrayList<>();
+        authors.add(authorLewisCarroll);
+        authors.add(authorHGWells);
+        authors.add(authorGeorgeOrwell);
+        authors.add(authorAldousHuxley);
+
+        Pageable pageable = PageRequest.ofSize(pageSize)
+                .withPage(pageNumber)
+                .withSort(Sort.by(sortBy).ascending());
+        Page<Author> authorsPage = new PageImpl<>(authors, pageable, authors.size());
+
+        given(authorRepository.findAll(pageable)).willReturn(authorsPage);
 
         // When
-        List<AuthorFindResponseDto> foundAuthors = authorService.findAll();
+        List<AuthorFindResponseDto> foundAuthors = authorService.findAll(
+                PageRequest.of(0, 4, Sort.by("pseudonym").ascending())
+        );
+
+        // Then
+        assertThat(foundAuthors.size()).isEqualTo(4);
+        assertThat(foundAuthors.get(0).getPseudonym()).isEqualTo("Lewis Carroll");
+        assertThat(foundAuthors.get(1).getPseudonym()).isEqualTo("H. G. Wells");
+        assertThat(foundAuthors.get(2).getPseudonym()).isEqualTo("George Orwell");
+        assertThat(foundAuthors.get(3).getPseudonym()).isEqualTo("Aldous Huxley");
+    }
+
+    @Test
+    public void findAll_Authors_NonExistingAuthors_Return_EmptyListAuthorResponseDTO() {
+        int pageNumber = 0;
+        int pageSize = 4;
+        String sortBy = "id";
+
+        List<Author> authors = new ArrayList<>();
+
+        Pageable pageable = PageRequest.ofSize(pageSize)
+                .withPage(pageNumber)
+                .withSort(Sort.by(sortBy).ascending());
+        Page<Author> authorsPage = new PageImpl<>(authors, pageable, authors.size());
+
+        given(authorRepository.findAll(pageable)).willReturn(authorsPage);
+
+        // When
+        List<AuthorFindResponseDto> foundAuthors = authorService.findAll(
+                PageRequest.of(0, 4, Sort.by("id").ascending())
+        );
 
         // Then
         assertThat(foundAuthors).isEmpty();
@@ -191,7 +246,7 @@ public class IAuthorServiceImplTest {
         // Given
         long authorId = 1L;
 
-        given(authorRepository.findById(authorId)).willReturn(Optional.of(authorOrwell));
+        given(authorRepository.findById(authorId)).willReturn(Optional.of(authorGeorgeOrwell));
 
         // When
         AuthorFindResponseDto foundAuthor = authorService.findById(authorId);

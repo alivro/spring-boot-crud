@@ -15,6 +15,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.MediaType;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.web.servlet.MockMvc;
@@ -138,18 +141,29 @@ public class BookControllerTest {
     }
 
     @Test
-    public void findAll_Books_ExistingBooks_Return_Ok() throws Exception {
+    public void findAllBySubtitleAsc_Books_ExistingBooks_Return_Ok() throws Exception {
         //Given
+        int pageNumber = 0;
+        int pageSize = 4;
+        String sortBy = "subtitle";
+        Pageable pageable = PageRequest.ofSize(pageSize)
+                .withPage(pageNumber)
+                .withSort(Sort.by(sortBy).ascending());
+
         List<BookResponseDto> foundBooks = new ArrayList<>();
         foundBooks.add(bookResponseBadBeginning);
+        foundBooks.add(bookResponseMiserableMill);
         foundBooks.add(bookResponseReptileRoom);
         foundBooks.add(bookResponseWideWindow);
-        foundBooks.add(bookResponseMiserableMill);
 
-        given(bookService.findAll()).willReturn(foundBooks);
+        given(bookService.findAll(pageable)).willReturn(foundBooks);
 
         // When
-        ResultActions response = mockMvc.perform(get("/api/book/findAll"));
+        ResultActions response = mockMvc.perform(get("/api/book/findAll")
+                .param("page", "0")
+                .param("size", "4")
+                .param("sort", "subtitle,asc")
+        );
 
         // Then
         response.andExpect(MockMvcResultMatchers.status().isOk())
@@ -159,11 +173,51 @@ public class BookControllerTest {
                 .andExpect(MockMvcResultMatchers.jsonPath("$.data[0].subtitle",
                         CoreMatchers.is(bookResponseBadBeginning.getSubtitle())))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.data[1].subtitle",
+                        CoreMatchers.is(bookResponseMiserableMill.getSubtitle())))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.data[2].subtitle",
+                        CoreMatchers.is(bookResponseReptileRoom.getSubtitle())))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.data[3].subtitle",
+                        CoreMatchers.is(bookResponseWideWindow.getSubtitle())));
+    }
+
+    @Test
+    public void findAllBySubtitleDesc_Books_ExistingBooks_Return_Ok() throws Exception {
+        //Given
+        int pageNumber = 0;
+        int pageSize = 4;
+        String sortBy = "subtitle";
+        Pageable pageable = PageRequest.ofSize(pageSize)
+                .withPage(pageNumber)
+                .withSort(Sort.by(sortBy).descending());
+
+        List<BookResponseDto> foundBooks = new ArrayList<>();
+        foundBooks.add(bookResponseWideWindow);
+        foundBooks.add(bookResponseReptileRoom);
+        foundBooks.add(bookResponseMiserableMill);
+        foundBooks.add(bookResponseBadBeginning);
+
+        given(bookService.findAll(pageable)).willReturn(foundBooks);
+
+        // When
+        ResultActions response = mockMvc.perform(get("/api/book/findAll")
+                .param("page", "0")
+                .param("size", "4")
+                .param("sort", "subtitle,desc")
+        );
+
+        // Then
+        response.andExpect(MockMvcResultMatchers.status().isOk())
+                .andExpect(MockMvcResultMatchers.jsonPath("$.message",
+                        CoreMatchers.is("Found books!")))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.data", hasSize(4)))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.data[0].subtitle",
+                        CoreMatchers.is(bookResponseWideWindow.getSubtitle())))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.data[1].subtitle",
                         CoreMatchers.is(bookResponseReptileRoom.getSubtitle())))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.data[2].subtitle",
-                        CoreMatchers.is(bookResponseWideWindow.getSubtitle())))
+                        CoreMatchers.is(bookResponseMiserableMill.getSubtitle())))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.data[3].subtitle",
-                        CoreMatchers.is(bookResponseMiserableMill.getSubtitle())));
+                        CoreMatchers.is(bookResponseBadBeginning.getSubtitle())));
     }
 
     @Test
@@ -171,7 +225,7 @@ public class BookControllerTest {
         //Given
         List<BookResponseDto> foundBooks = new ArrayList<>();
 
-        given(bookService.findAll()).willReturn(foundBooks);
+        given(bookService.findAll(any(Pageable.class))).willReturn(foundBooks);
 
         // When
         ResultActions response = mockMvc.perform(get("/api/book/findAll"));

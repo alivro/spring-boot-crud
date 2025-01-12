@@ -15,6 +15,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.MediaType;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.web.servlet.MockMvc;
@@ -47,10 +50,10 @@ public class AuthorControllerTest {
 
     private static AuthorSaveRequestDto authorSaveRequestVerne;
     private static AuthorSaveRequestDto authorUpdateRequestVerne;
-    private static AuthorFindResponseDto authorResponseOrwell;
-    private static AuthorFindResponseDto authorResponseWells;
-    private static AuthorFindResponseDto authorResponseHuxley;
-    private static AuthorFindResponseDto authorResponseCarroll;
+    private static AuthorFindResponseDto authorResponseGeorgeOrwell;
+    private static AuthorFindResponseDto authorResponseHGWells;
+    private static AuthorFindResponseDto authorResponseAldousHuxley;
+    private static AuthorFindResponseDto authorResponseLewisCarroll;
     private static AuthorSaveResponseDto authorSavedResponseVerne;
     private static AuthorSaveResponseDto authorUpdatedResponseVerne;
 
@@ -78,7 +81,7 @@ public class AuthorControllerTest {
                 .isbn13("9780062696120")
                 .build();
 
-        authorResponseOrwell = AuthorFindResponseDto.builder()
+        authorResponseGeorgeOrwell = AuthorFindResponseDto.builder()
                 .id(1L)
                 .firstName("Eric")
                 .middleName("Arthur")
@@ -87,7 +90,7 @@ public class AuthorControllerTest {
                 .books(Collections.singletonList(book1984))
                 .build();
 
-        authorResponseWells = AuthorFindResponseDto.builder()
+        authorResponseHGWells = AuthorFindResponseDto.builder()
                 .id(2L)
                 .firstName("Herbert")
                 .middleName("George")
@@ -96,7 +99,7 @@ public class AuthorControllerTest {
                 .books(Collections.singletonList(bookTimeMachine))
                 .build();
 
-        authorResponseHuxley = AuthorFindResponseDto.builder()
+        authorResponseAldousHuxley = AuthorFindResponseDto.builder()
                 .id(3L)
                 .firstName("Aldous")
                 .middleName("Leonard")
@@ -105,7 +108,7 @@ public class AuthorControllerTest {
                 .books(Collections.singletonList(bookBraveWorld))
                 .build();
 
-        authorResponseCarroll = AuthorFindResponseDto.builder()
+        authorResponseLewisCarroll = AuthorFindResponseDto.builder()
                 .id(4L)
                 .firstName("Charles")
                 .middleName("Lutwidge")
@@ -134,18 +137,29 @@ public class AuthorControllerTest {
     }
 
     @Test
-    public void findAll_Authors_ExistingAuthors_Return_Ok() throws Exception {
+    public void findAllPseudonymAsc_Authors_ExistingAuthors_Return_Ok() throws Exception {
         //Given
-        List<AuthorFindResponseDto> foundAuthors = new ArrayList<>();
-        foundAuthors.add(authorResponseOrwell);
-        foundAuthors.add(authorResponseWells);
-        foundAuthors.add(authorResponseHuxley);
-        foundAuthors.add(authorResponseCarroll);
+        int pageNumber = 0;
+        int pageSize = 4;
+        String sortBy = "pseudonym";
+        Pageable pageable = PageRequest.ofSize(pageSize)
+                .withPage(pageNumber)
+                .withSort(Sort.by(sortBy).ascending());
 
-        given(authorService.findAll()).willReturn(foundAuthors);
+        List<AuthorFindResponseDto> foundAuthors = new ArrayList<>();
+        foundAuthors.add(authorResponseAldousHuxley);
+        foundAuthors.add(authorResponseGeorgeOrwell);
+        foundAuthors.add(authorResponseHGWells);
+        foundAuthors.add(authorResponseLewisCarroll);
+
+        given(authorService.findAll(pageable)).willReturn(foundAuthors);
 
         // When
-        ResultActions response = mockMvc.perform(get("/api/author/findAll"));
+        ResultActions response = mockMvc.perform(get("/api/author/findAll")
+                .param("page", "0")
+                .param("size", "4")
+                .param("sort", "pseudonym,asc")
+        );
 
         // Then
         response.andExpect(MockMvcResultMatchers.status().isOk())
@@ -153,13 +167,54 @@ public class AuthorControllerTest {
                         CoreMatchers.is("Found authors!")))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.data", hasSize(4)))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.data[0].pseudonym",
-                        CoreMatchers.is(authorResponseOrwell.getPseudonym())))
+                        CoreMatchers.is(authorResponseAldousHuxley.getPseudonym())))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.data[1].pseudonym",
-                        CoreMatchers.is(authorResponseWells.getPseudonym())))
+                        CoreMatchers.is(authorResponseGeorgeOrwell.getPseudonym())))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.data[2].pseudonym",
-                        CoreMatchers.is(authorResponseHuxley.getPseudonym())))
+                        CoreMatchers.is(authorResponseHGWells.getPseudonym())))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.data[3].pseudonym",
-                        CoreMatchers.is(authorResponseCarroll.getPseudonym())));
+                        CoreMatchers.is(authorResponseLewisCarroll.getPseudonym())));
+    }
+
+    @Test
+    public void findAllPseudonymDesc_Authors_ExistingAuthors_Return_Ok() throws Exception {
+        //Given
+        int pageNumber = 0;
+        int pageSize = 4;
+        String sortBy = "pseudonym";
+        Pageable pageable = PageRequest.ofSize(pageSize)
+                .withPage(pageNumber)
+                .withSort(Sort.by(sortBy).descending());
+
+        List<AuthorFindResponseDto> foundAuthors = new ArrayList<>();
+        foundAuthors.add(authorResponseLewisCarroll);
+        foundAuthors.add(authorResponseHGWells);
+        foundAuthors.add(authorResponseGeorgeOrwell);
+        foundAuthors.add(authorResponseAldousHuxley);
+
+        given(authorService.findAll(pageable)).willReturn(foundAuthors);
+
+        // When
+        ResultActions response = mockMvc.perform(get("/api/author/findAll")
+                .param("page", "0")
+                .param("size", "4")
+                .param("sort", "pseudonym,desc")
+        );
+
+        // Then
+        response.andExpect(MockMvcResultMatchers.status().isOk())
+                .andExpect(MockMvcResultMatchers.jsonPath("$.message",
+                        CoreMatchers.is("Found authors!")))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.data", hasSize(4)))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.data[0].pseudonym",
+                        CoreMatchers.is(authorResponseLewisCarroll.getPseudonym())))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.data[1].pseudonym",
+                        CoreMatchers.is(authorResponseHGWells.getPseudonym())))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.data[2].pseudonym",
+                        CoreMatchers.is(authorResponseGeorgeOrwell.getPseudonym())))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.data[3].pseudonym",
+                        CoreMatchers.is(authorResponseAldousHuxley.getPseudonym())));
+
     }
 
     @Test
@@ -167,7 +222,7 @@ public class AuthorControllerTest {
         //Given
         List<AuthorFindResponseDto> foundAuthors = new ArrayList<>();
 
-        given(authorService.findAll()).willReturn(foundAuthors);
+        given(authorService.findAll(any(Pageable.class))).willReturn(foundAuthors);
 
         // When
         ResultActions response = mockMvc.perform(get("/api/author/findAll"));
@@ -184,7 +239,7 @@ public class AuthorControllerTest {
         //Given
         long authorId = 1L;
 
-        given(authorService.findById(authorId)).willReturn(authorResponseOrwell);
+        given(authorService.findById(authorId)).willReturn(authorResponseGeorgeOrwell);
 
         // When
         ResultActions response = mockMvc.perform(get("/api/author/find/{id}", authorId));
@@ -194,17 +249,17 @@ public class AuthorControllerTest {
                 .andExpect(MockMvcResultMatchers.jsonPath("$.message",
                         CoreMatchers.is("Found author!")))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.data[0].id")
-                        .value(authorResponseOrwell.getId()))
+                        .value(authorResponseGeorgeOrwell.getId()))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.data[0].firstName",
-                        CoreMatchers.is(authorResponseOrwell.getFirstName())))
+                        CoreMatchers.is(authorResponseGeorgeOrwell.getFirstName())))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.data[0].middleName",
-                        CoreMatchers.is(authorResponseOrwell.getMiddleName())))
+                        CoreMatchers.is(authorResponseGeorgeOrwell.getMiddleName())))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.data[0].lastName",
-                        CoreMatchers.is(authorResponseOrwell.getLastName())))
+                        CoreMatchers.is(authorResponseGeorgeOrwell.getLastName())))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.data[0].pseudonym",
-                        CoreMatchers.is(authorResponseOrwell.getPseudonym())))
+                        CoreMatchers.is(authorResponseGeorgeOrwell.getPseudonym())))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.data[0].books[0].title",
-                        CoreMatchers.is(authorResponseOrwell.getBooks().get(0).getTitle())));
+                        CoreMatchers.is(authorResponseGeorgeOrwell.getBooks().get(0).getTitle())));
     }
 
     @Test

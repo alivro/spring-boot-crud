@@ -11,6 +11,8 @@ import com.alivro.spring.crud.service.IAuthorService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -37,10 +39,10 @@ public class IAuthorServiceImpl implements IAuthorService {
      * @return Información de todos los autores
      */
     @Override
-    public List<AuthorFindResponseDto> findAll() {
+    public List<AuthorFindResponseDto> findAll(Pageable pageable) {
         logger.info("Busca todos los autores.");
 
-        List<Author> foundAuthors = authorRepository.findAll();
+        Page<Author> foundAuthors = authorRepository.findAll(pageable);
 
         return foundAuthors.stream()
                 .map(AuthorFindResponseDto::mapEntityToResponseDto)

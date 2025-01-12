@@ -3,6 +3,7 @@ package com.alivro.spring.crud.service;
 import com.alivro.spring.crud.model.author.request.AuthorSaveRequestDto;
 import com.alivro.spring.crud.model.author.response.AuthorFindResponseDto;
 import com.alivro.spring.crud.model.author.response.AuthorSaveResponseDto;
+import org.springframework.data.domain.Pageable;
 
 import java.util.List;
 
@@ -12,7 +13,7 @@ public interface IAuthorService {
      *
      * @return Información de todos los autores
      */
-    List<AuthorFindResponseDto> findAll();
+    List<AuthorFindResponseDto> findAll(Pageable pageable);
 
     /**
      * Método para buscar un autor por su ID
