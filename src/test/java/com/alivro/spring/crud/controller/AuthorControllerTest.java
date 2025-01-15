@@ -7,6 +7,8 @@ import com.alivro.spring.crud.model.author.response.AuthorFindResponseDto;
 import com.alivro.spring.crud.model.author.response.AuthorSaveResponseDto;
 import com.alivro.spring.crud.model.author.response.BookOfAuthorResponseDto;
 import com.alivro.spring.crud.service.IAuthorService;
+import com.alivro.spring.crud.util.CustomData;
+import com.alivro.spring.crud.util.PageMetadata;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.hamcrest.CoreMatchers;
 import org.junit.jupiter.api.BeforeAll;
@@ -48,12 +50,12 @@ public class AuthorControllerTest {
     @Autowired
     private ObjectMapper objectMapper;
 
-    private static AuthorSaveRequestDto authorSaveRequestVerne;
-    private static AuthorSaveRequestDto authorUpdateRequestVerne;
     private static AuthorFindResponseDto authorResponseGeorgeOrwell;
     private static AuthorFindResponseDto authorResponseHGWells;
     private static AuthorFindResponseDto authorResponseAldousHuxley;
     private static AuthorFindResponseDto authorResponseLewisCarroll;
+    private static AuthorSaveRequestDto authorSaveRequestVerne;
+    private static AuthorSaveRequestDto authorUpdateRequestVerne;
     private static AuthorSaveResponseDto authorSavedResponseVerne;
     private static AuthorSaveResponseDto authorUpdatedResponseVerne;
 
@@ -79,6 +81,13 @@ public class AuthorControllerTest {
                 .title("Brave New World")
                 .publisher("Harper")
                 .isbn13("9780062696120")
+                .build();
+
+        BookOfAuthorResponseDto bookAliceWonderland = BookOfAuthorResponseDto.builder()
+                .id(4L)
+                .title("Alice''s Adventures in Wonderland")
+                .publisher("'Penguin'")
+                .isbn13("9780241588864")
                 .build();
 
         authorResponseGeorgeOrwell = AuthorFindResponseDto.builder()
@@ -114,7 +123,14 @@ public class AuthorControllerTest {
                 .middleName("Lutwidge")
                 .lastName("Dodgson")
                 .pseudonym("Lewis Carroll")
-                .books(new ArrayList<>())
+                .books(Collections.singletonList(bookAliceWonderland))
+                .build();
+
+        authorSaveRequestVerne = AuthorSaveRequestDto.builder()
+                .firstName("Jules")
+                .middleName("Gaby")
+                .lastName("Verne")
+                .pseudonym("Jules Verne")
                 .build();
 
         authorSaveRequestVerne = AuthorSaveRequestDto.builder()
@@ -140,7 +156,7 @@ public class AuthorControllerTest {
     public void findAllPseudonymAsc_Authors_ExistingAuthors_Return_Ok() throws Exception {
         //Given
         int pageNumber = 0;
-        int pageSize = 4;
+        int pageSize = 5;
         String sortBy = "pseudonym";
         Pageable pageable = PageRequest.ofSize(pageSize)
                 .withPage(pageNumber)
@@ -152,20 +168,34 @@ public class AuthorControllerTest {
         foundAuthors.add(authorResponseHGWells);
         foundAuthors.add(authorResponseLewisCarroll);
 
-        given(authorService.findAll(pageable)).willReturn(foundAuthors);
+        PageMetadata metadata = PageMetadata.builder()
+                .pageNumber(pageNumber)
+                .pageSize(pageSize)
+                .numberOfElements(foundAuthors.size())
+                .totalPages((int) Math.ceil((double) foundAuthors.size() / pageSize))
+                .totalElements(foundAuthors.size())
+                .build();
+
+        given(authorService.findAll(pageable)).willReturn(
+                CustomData.<AuthorFindResponseDto, PageMetadata>builder()
+                        .data(foundAuthors)
+                        .metadata(metadata)
+                        .build()
+        );
 
         // When
         ResultActions response = mockMvc.perform(get("/api/author/findAll")
                 .param("page", "0")
-                .param("size", "4")
+                .param("size", "5")
                 .param("sort", "pseudonym,asc")
         );
 
         // Then
         response.andExpect(MockMvcResultMatchers.status().isOk())
                 .andExpect(MockMvcResultMatchers.jsonPath("$.message",
-                        CoreMatchers.is("Found authors!")))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.data", hasSize(4)))
+                        CoreMatchers.is("Found authors!")));
+
+        response.andExpect(MockMvcResultMatchers.jsonPath("$.data", hasSize(4)))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.data[0].pseudonym",
                         CoreMatchers.is(authorResponseAldousHuxley.getPseudonym())))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.data[1].pseudonym",
@@ -174,13 +204,24 @@ public class AuthorControllerTest {
                         CoreMatchers.is(authorResponseHGWells.getPseudonym())))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.data[3].pseudonym",
                         CoreMatchers.is(authorResponseLewisCarroll.getPseudonym())));
+
+        response.andExpect(MockMvcResultMatchers.jsonPath("$.metadata.pageNumber",
+                        CoreMatchers.is(pageNumber)))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.metadata.pageSize",
+                        CoreMatchers.is(pageSize)))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.metadata.numberOfElements",
+                        CoreMatchers.is(foundAuthors.size())))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.metadata.totalPages",
+                        CoreMatchers.is(1)))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.metadata.totalElements",
+                        CoreMatchers.is(foundAuthors.size())));
     }
 
     @Test
     public void findAllPseudonymDesc_Authors_ExistingAuthors_Return_Ok() throws Exception {
         //Given
         int pageNumber = 0;
-        int pageSize = 4;
+        int pageSize = 5;
         String sortBy = "pseudonym";
         Pageable pageable = PageRequest.ofSize(pageSize)
                 .withPage(pageNumber)
@@ -192,20 +233,34 @@ public class AuthorControllerTest {
         foundAuthors.add(authorResponseGeorgeOrwell);
         foundAuthors.add(authorResponseAldousHuxley);
 
-        given(authorService.findAll(pageable)).willReturn(foundAuthors);
+        PageMetadata metadata = PageMetadata.builder()
+                .pageNumber(pageNumber)
+                .pageSize(pageSize)
+                .numberOfElements(foundAuthors.size())
+                .totalPages((int) Math.ceil((double) foundAuthors.size() / pageSize))
+                .totalElements(foundAuthors.size())
+                .build();
+
+        given(authorService.findAll(pageable)).willReturn(
+                CustomData.<AuthorFindResponseDto, PageMetadata>builder()
+                        .data(foundAuthors)
+                        .metadata(metadata)
+                        .build()
+        );
 
         // When
         ResultActions response = mockMvc.perform(get("/api/author/findAll")
                 .param("page", "0")
-                .param("size", "4")
+                .param("size", "5")
                 .param("sort", "pseudonym,desc")
         );
 
         // Then
         response.andExpect(MockMvcResultMatchers.status().isOk())
                 .andExpect(MockMvcResultMatchers.jsonPath("$.message",
-                        CoreMatchers.is("Found authors!")))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.data", hasSize(4)))
+                        CoreMatchers.is("Found authors!")));
+
+        response.andExpect(MockMvcResultMatchers.jsonPath("$.data", hasSize(4)))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.data[0].pseudonym",
                         CoreMatchers.is(authorResponseLewisCarroll.getPseudonym())))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.data[1].pseudonym",
@@ -215,14 +270,44 @@ public class AuthorControllerTest {
                 .andExpect(MockMvcResultMatchers.jsonPath("$.data[3].pseudonym",
                         CoreMatchers.is(authorResponseAldousHuxley.getPseudonym())));
 
+        response.andExpect(MockMvcResultMatchers.jsonPath("$.metadata.pageNumber",
+                        CoreMatchers.is(pageNumber)))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.metadata.pageSize",
+                        CoreMatchers.is(pageSize)))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.metadata.numberOfElements",
+                        CoreMatchers.is(foundAuthors.size())))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.metadata.totalPages",
+                        CoreMatchers.is(1)))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.metadata.totalElements",
+                        CoreMatchers.is(foundAuthors.size())));
     }
 
     @Test
     public void findAll_Authors_NonExistingAuthors_Return_Ok() throws Exception {
-        //Given
+        // Given
+        int pageNumber = 0;
+        int pageSize = 5;
+        String sortBy = "id";
+        Pageable pageable = PageRequest.ofSize(pageSize)
+                .withPage(pageNumber)
+                .withSort(Sort.by(sortBy).ascending());
+
         List<AuthorFindResponseDto> foundAuthors = new ArrayList<>();
 
-        given(authorService.findAll(any(Pageable.class))).willReturn(foundAuthors);
+        PageMetadata metadata = PageMetadata.builder()
+                .pageNumber(pageNumber)
+                .pageSize(pageSize)
+                .numberOfElements(foundAuthors.size())
+                .totalPages((int) Math.ceil((double) foundAuthors.size() / pageSize))
+                .totalElements(foundAuthors.size())
+                .build();
+
+        given(authorService.findAll(pageable)).willReturn(
+                CustomData.<AuthorFindResponseDto, PageMetadata>builder()
+                        .data(foundAuthors)
+                        .metadata(metadata)
+                        .build()
+        );
 
         // When
         ResultActions response = mockMvc.perform(get("/api/author/findAll"));
@@ -230,8 +315,20 @@ public class AuthorControllerTest {
         // Then
         response.andExpect(MockMvcResultMatchers.status().isOk())
                 .andExpect(MockMvcResultMatchers.jsonPath("$.message",
-                        CoreMatchers.is("Found authors!")))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.data", hasSize(0)));
+                        CoreMatchers.is("Found authors!")));
+
+        response.andExpect(MockMvcResultMatchers.jsonPath("$.data", hasSize(0)));
+
+        response.andExpect(MockMvcResultMatchers.jsonPath("$.metadata.pageNumber",
+                        CoreMatchers.is(pageNumber)))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.metadata.pageSize",
+                        CoreMatchers.is(pageSize)))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.metadata.numberOfElements",
+                        CoreMatchers.is(foundAuthors.size())))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.metadata.totalPages",
+                        CoreMatchers.is(0)))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.metadata.totalElements",
+                        CoreMatchers.is(foundAuthors.size())));
     }
 
     @Test
@@ -247,8 +344,9 @@ public class AuthorControllerTest {
         // Then
         response.andExpect(MockMvcResultMatchers.status().isOk())
                 .andExpect(MockMvcResultMatchers.jsonPath("$.message",
-                        CoreMatchers.is("Found author!")))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.data[0].id")
+                        CoreMatchers.is("Found author!")));
+
+        response.andExpect(MockMvcResultMatchers.jsonPath("$.data[0].id")
                         .value(authorResponseGeorgeOrwell.getId()))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.data[0].firstName",
                         CoreMatchers.is(authorResponseGeorgeOrwell.getFirstName())))
@@ -305,8 +403,9 @@ public class AuthorControllerTest {
         // Then
         response.andExpect(MockMvcResultMatchers.status().isCreated())
                 .andExpect(MockMvcResultMatchers.jsonPath("$.message",
-                        CoreMatchers.is("Saved author!")))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.data[0].firstName",
+                        CoreMatchers.is("Saved author!")));
+
+        response.andExpect(MockMvcResultMatchers.jsonPath("$.data[0].firstName",
                         CoreMatchers.is(authorSavedResponseVerne.getFirstName())))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.data[0].middleName",
                         CoreMatchers.is(authorSavedResponseVerne.getMiddleName())))
@@ -349,8 +448,9 @@ public class AuthorControllerTest {
         // Then
         response.andExpect(MockMvcResultMatchers.status().isOk())
                 .andExpect(MockMvcResultMatchers.jsonPath("$.message",
-                        CoreMatchers.is("Updated author!")))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.data[0].firstName",
+                        CoreMatchers.is("Updated author!")));
+
+        response.andExpect(MockMvcResultMatchers.jsonPath("$.data[0].firstName",
                         CoreMatchers.is(authorUpdatedResponseVerne.getFirstName())))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.data[0].middleName",
                         CoreMatchers.is(authorUpdatedResponseVerne.getMiddleName())))

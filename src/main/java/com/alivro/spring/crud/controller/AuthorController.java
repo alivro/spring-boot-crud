@@ -5,7 +5,9 @@ import com.alivro.spring.crud.model.author.request.AuthorSaveRequestDto;
 import com.alivro.spring.crud.model.author.response.AuthorFindResponseDto;
 import com.alivro.spring.crud.model.author.response.AuthorSaveResponseDto;
 import com.alivro.spring.crud.service.IAuthorService;
+import com.alivro.spring.crud.util.CustomData;
 import com.alivro.spring.crud.util.CustomResponse;
+import com.alivro.spring.crud.util.PageMetadata;
 import jakarta.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,8 +18,6 @@ import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("/api/author")
@@ -45,12 +45,12 @@ public class AuthorController {
     public ResponseEntity<CustomResponse<AuthorFindResponseDto>> findAllAuthors(
             @PageableDefault(page = 0, size = 5, sort = "id", direction = Sort.Direction.ASC)
             Pageable pageable) {
-        List<AuthorFindResponseDto> foundAuthors = authorService.findAll(pageable);
+        CustomData<AuthorFindResponseDto, PageMetadata> authorsData = authorService.findAll(pageable);
 
         logger.info("Autores encontrados.");
 
         return ResponseHandler.sendResponse(
-                HttpStatus.OK, "Found authors!", foundAuthors
+                HttpStatus.OK, "Found authors!", authorsData.getData(), authorsData.getMetadata()
         );
     }
 
@@ -121,7 +121,7 @@ public class AuthorController {
         logger.info("Autor eliminado. ID: {}", id);
 
         return ResponseHandler.sendResponse(
-                HttpStatus.OK, "Deleted author!", null
+                HttpStatus.OK, "Deleted author!"
         );
     }
 }

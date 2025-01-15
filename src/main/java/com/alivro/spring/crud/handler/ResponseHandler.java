@@ -16,17 +16,19 @@ public class ResponseHandler {
     /**
      * Método para enviar una respuesta
      *
-     * @param status  Código de estado HTTP
-     * @param message Mensaje
-     * @param data    Lista de objetos
+     * @param status   Código de estado HTTP
+     * @param message  Mensaje
+     * @param data     Lista de objetos
+     * @param metadata Metadatos
      * @return Respuesta HTTP
      */
     public static <T> ResponseEntity<CustomResponse<T>> sendResponse(
-            HttpStatus status, String message, List<T> data) {
+            HttpStatus status, String message, List<T> data, Object metadata) {
         CustomResponse<T> response = CustomResponse.<T>builder()
                 .status(status.value())
                 .message(message)
                 .data(data)
+                .metadata(metadata)
                 .build();
 
         return new ResponseEntity<>(response, status);
@@ -42,26 +44,53 @@ public class ResponseHandler {
      */
     public static <T> ResponseEntity<CustomResponse<T>> sendResponse(
             HttpStatus status, String message, T data) {
-        return sendResponse(status, message, Collections.singletonList(data));
+        return sendResponse(status, message, Collections.singletonList(data), null);
+    }
+
+    /**
+     * Método para enviar una respuesta
+     *
+     * @param status  Código de estado HTTP
+     * @param message Mensaje
+     * @return Respuesta HTTP
+     */
+    public static <T> ResponseEntity<CustomResponse<T>> sendResponse(
+            HttpStatus status, String message) {
+        return sendResponse(status, message, null, null);
+    }
+
+    /**
+     * Método para enviar una respuesta de error
+     *
+     * @param status   Código de estado HTTP
+     * @param error    Mensaje de error
+     * @param path     URL de la solicitud
+     * @param metadata Metadatos
+     * @return Respuesta HTTP
+     */
+    public static ResponseEntity<CustomErrorResponse> sendErrorResponse(
+            HttpStatus status, String error, String path, Object metadata) {
+        CustomErrorResponse response = CustomErrorResponse.builder()
+                .status(status.value())
+                .error(error)
+                .path(path)
+                .timestamp(new Timestamp(System.currentTimeMillis()))
+                .metadata(metadata)
+                .build();
+
+        return new ResponseEntity<>(response, status);
     }
 
     /**
      * Método para enviar una respuesta de error
      *
      * @param status Código de estado HTTP
-     * @param error Mensaje de error
+     * @param error  Mensaje de error
      * @param path   URL de la solicitud
      * @return Respuesta HTTP
      */
     public static ResponseEntity<CustomErrorResponse> sendErrorResponse(
             HttpStatus status, String error, String path) {
-        CustomErrorResponse response = CustomErrorResponse.builder()
-                .status(status.value())
-                .error(error)
-                .path(path)
-                .timestamp(new Timestamp(System.currentTimeMillis()))
-                .build();
-
-        return new ResponseEntity<>(response, status);
+        return sendErrorResponse(status, error, path, null);
     }
 }

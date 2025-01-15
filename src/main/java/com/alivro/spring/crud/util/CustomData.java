@@ -11,13 +11,9 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class CustomResponse<T> {
-    // Código de estado HTTP
-    private int status;
-    // Mensaje
-    private String message;
+public class CustomData<T, S> {
     // Lista de objetos
     private List<T> data;
     // Metadatos
-    private Object metadata;
+    private S metadata;
 }

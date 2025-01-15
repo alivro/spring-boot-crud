@@ -7,6 +7,8 @@ import com.alivro.spring.crud.model.book.request.BookSaveRequestDto;
 import com.alivro.spring.crud.model.book.response.AuthorOfBookResponseDto;
 import com.alivro.spring.crud.model.book.response.BookResponseDto;
 import com.alivro.spring.crud.service.IBookService;
+import com.alivro.spring.crud.util.CustomData;
+import com.alivro.spring.crud.util.PageMetadata;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.hamcrest.CoreMatchers;
 import org.junit.jupiter.api.BeforeAll;
@@ -144,7 +146,7 @@ public class BookControllerTest {
     public void findAllBySubtitleAsc_Books_ExistingBooks_Return_Ok() throws Exception {
         //Given
         int pageNumber = 0;
-        int pageSize = 4;
+        int pageSize = 5;
         String sortBy = "subtitle";
         Pageable pageable = PageRequest.ofSize(pageSize)
                 .withPage(pageNumber)
@@ -156,20 +158,34 @@ public class BookControllerTest {
         foundBooks.add(bookResponseReptileRoom);
         foundBooks.add(bookResponseWideWindow);
 
-        given(bookService.findAll(pageable)).willReturn(foundBooks);
+        PageMetadata metadata = PageMetadata.builder()
+                .pageNumber(pageNumber)
+                .pageSize(pageSize)
+                .numberOfElements(foundBooks.size())
+                .totalPages((int) Math.ceil((double) foundBooks.size() / pageSize))
+                .totalElements(foundBooks.size())
+                .build();
+
+        given(bookService.findAll(pageable)).willReturn(
+                CustomData.<BookResponseDto, PageMetadata>builder()
+                        .data(foundBooks)
+                        .metadata(metadata)
+                        .build()
+        );
 
         // When
         ResultActions response = mockMvc.perform(get("/api/book/findAll")
                 .param("page", "0")
-                .param("size", "4")
+                .param("size", "5")
                 .param("sort", "subtitle,asc")
         );
 
         // Then
         response.andExpect(MockMvcResultMatchers.status().isOk())
                 .andExpect(MockMvcResultMatchers.jsonPath("$.message",
-                        CoreMatchers.is("Found books!")))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.data", hasSize(4)))
+                        CoreMatchers.is("Found books!")));
+
+        response.andExpect(MockMvcResultMatchers.jsonPath("$.data", hasSize(4)))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.data[0].subtitle",
                         CoreMatchers.is(bookResponseBadBeginning.getSubtitle())))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.data[1].subtitle",
@@ -178,13 +194,24 @@ public class BookControllerTest {
                         CoreMatchers.is(bookResponseReptileRoom.getSubtitle())))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.data[3].subtitle",
                         CoreMatchers.is(bookResponseWideWindow.getSubtitle())));
+
+        response.andExpect(MockMvcResultMatchers.jsonPath("$.metadata.pageNumber",
+                        CoreMatchers.is(pageNumber)))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.metadata.pageSize",
+                        CoreMatchers.is(pageSize)))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.metadata.numberOfElements",
+                        CoreMatchers.is(foundBooks.size())))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.metadata.totalPages",
+                        CoreMatchers.is(1)))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.metadata.totalElements",
+                        CoreMatchers.is(foundBooks.size())));
     }
 
     @Test
     public void findAllBySubtitleDesc_Books_ExistingBooks_Return_Ok() throws Exception {
         //Given
         int pageNumber = 0;
-        int pageSize = 4;
+        int pageSize = 5;
         String sortBy = "subtitle";
         Pageable pageable = PageRequest.ofSize(pageSize)
                 .withPage(pageNumber)
@@ -196,20 +223,34 @@ public class BookControllerTest {
         foundBooks.add(bookResponseMiserableMill);
         foundBooks.add(bookResponseBadBeginning);
 
-        given(bookService.findAll(pageable)).willReturn(foundBooks);
+        PageMetadata metadata = PageMetadata.builder()
+                .pageNumber(pageNumber)
+                .pageSize(pageSize)
+                .numberOfElements(foundBooks.size())
+                .totalPages((int) Math.ceil((double) foundBooks.size() / pageSize))
+                .totalElements(foundBooks.size())
+                .build();
+
+        given(bookService.findAll(pageable)).willReturn(
+                CustomData.<BookResponseDto, PageMetadata>builder()
+                        .data(foundBooks)
+                        .metadata(metadata)
+                        .build()
+        );
 
         // When
         ResultActions response = mockMvc.perform(get("/api/book/findAll")
                 .param("page", "0")
-                .param("size", "4")
+                .param("size", "5")
                 .param("sort", "subtitle,desc")
         );
 
         // Then
         response.andExpect(MockMvcResultMatchers.status().isOk())
                 .andExpect(MockMvcResultMatchers.jsonPath("$.message",
-                        CoreMatchers.is("Found books!")))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.data", hasSize(4)))
+                        CoreMatchers.is("Found books!")));
+
+        response.andExpect(MockMvcResultMatchers.jsonPath("$.data", hasSize(4)))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.data[0].subtitle",
                         CoreMatchers.is(bookResponseWideWindow.getSubtitle())))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.data[1].subtitle",
@@ -218,14 +259,45 @@ public class BookControllerTest {
                         CoreMatchers.is(bookResponseMiserableMill.getSubtitle())))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.data[3].subtitle",
                         CoreMatchers.is(bookResponseBadBeginning.getSubtitle())));
+
+        response.andExpect(MockMvcResultMatchers.jsonPath("$.metadata.pageNumber",
+                        CoreMatchers.is(pageNumber)))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.metadata.pageSize",
+                        CoreMatchers.is(pageSize)))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.metadata.numberOfElements",
+                        CoreMatchers.is(foundBooks.size())))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.metadata.totalPages",
+                        CoreMatchers.is(1)))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.metadata.totalElements",
+                        CoreMatchers.is(foundBooks.size())));
     }
 
     @Test
     public void findAll_Books_NonExistingBooks_Return_Ok() throws Exception {
         //Given
+        int pageNumber = 0;
+        int pageSize = 5;
+        String sortBy = "id";
+        Pageable pageable = PageRequest.ofSize(pageSize)
+                .withPage(pageNumber)
+                .withSort(Sort.by(sortBy).ascending());
+
         List<BookResponseDto> foundBooks = new ArrayList<>();
 
-        given(bookService.findAll(any(Pageable.class))).willReturn(foundBooks);
+        PageMetadata metadata = PageMetadata.builder()
+                .pageNumber(pageNumber)
+                .pageSize(pageSize)
+                .numberOfElements(foundBooks.size())
+                .totalPages((int) Math.ceil((double) foundBooks.size() / pageSize))
+                .totalElements(foundBooks.size())
+                .build();
+
+        given(bookService.findAll(pageable)).willReturn(
+                CustomData.<BookResponseDto, PageMetadata>builder()
+                        .data(foundBooks)
+                        .metadata(metadata)
+                        .build()
+        );
 
         // When
         ResultActions response = mockMvc.perform(get("/api/book/findAll"));
@@ -233,8 +305,20 @@ public class BookControllerTest {
         // Then
         response.andExpect(MockMvcResultMatchers.status().isOk())
                 .andExpect(MockMvcResultMatchers.jsonPath("$.message",
-                        CoreMatchers.is("Found books!")))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.data", hasSize(0)));
+                        CoreMatchers.is("Found books!")));
+
+        response.andExpect(MockMvcResultMatchers.jsonPath("$.data", hasSize(0)));
+
+        response.andExpect(MockMvcResultMatchers.jsonPath("$.metadata.pageNumber",
+                        CoreMatchers.is(pageNumber)))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.metadata.pageSize",
+                        CoreMatchers.is(pageSize)))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.metadata.numberOfElements",
+                        CoreMatchers.is(foundBooks.size())))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.metadata.totalPages",
+                        CoreMatchers.is(0)))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.metadata.totalElements",
+                        CoreMatchers.is(foundBooks.size())));
     }
 
     @Test

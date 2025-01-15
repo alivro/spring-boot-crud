@@ -8,6 +8,8 @@ import com.alivro.spring.crud.model.author.response.AuthorFindResponseDto;
 import com.alivro.spring.crud.model.author.response.AuthorSaveResponseDto;
 import com.alivro.spring.crud.repository.AuthorRepository;
 import com.alivro.spring.crud.service.IAuthorService;
+import com.alivro.spring.crud.util.CustomData;
+import com.alivro.spring.crud.util.PageMetadata;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,14 +41,29 @@ public class IAuthorServiceImpl implements IAuthorService {
      * @return Información de todos los autores
      */
     @Override
-    public List<AuthorFindResponseDto> findAll(Pageable pageable) {
+    public CustomData<AuthorFindResponseDto, PageMetadata> findAll(Pageable pageable) {
         logger.info("Busca todos los autores.");
 
-        Page<Author> foundAuthors = authorRepository.findAll(pageable);
+        Page<Author> authorsPage = authorRepository.findAll(pageable);
 
-        return foundAuthors.stream()
+        // Información de los autores
+        List<AuthorFindResponseDto> foundAuthors = authorsPage.stream()
                 .map(AuthorFindResponseDto::mapEntityToResponseDto)
                 .toList();
+
+        // Metadatos
+        PageMetadata metadata = PageMetadata.builder()
+                .pageNumber(authorsPage.getNumber())
+                .pageSize(authorsPage.getSize())
+                .numberOfElements(authorsPage.getNumberOfElements())
+                .totalPages(authorsPage.getTotalPages())
+                .totalElements(authorsPage.getTotalElements())
+                .build();
+
+        return CustomData.<AuthorFindResponseDto, PageMetadata>builder()
+                .data(foundAuthors)
+                .metadata(metadata)
+                .build();
     }
 
     /**

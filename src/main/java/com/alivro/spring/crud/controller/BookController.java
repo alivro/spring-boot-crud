@@ -4,7 +4,9 @@ import com.alivro.spring.crud.handler.ResponseHandler;
 import com.alivro.spring.crud.model.book.request.BookSaveRequestDto;
 import com.alivro.spring.crud.model.book.response.BookResponseDto;
 import com.alivro.spring.crud.service.IBookService;
+import com.alivro.spring.crud.util.CustomData;
 import com.alivro.spring.crud.util.CustomResponse;
+import com.alivro.spring.crud.util.PageMetadata;
 import jakarta.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -15,8 +17,6 @@ import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("/api/book")
@@ -44,12 +44,12 @@ public class BookController {
     public ResponseEntity<CustomResponse<BookResponseDto>> findAllBooks(
             @PageableDefault(page = 0, size = 5, sort = "id", direction = Sort.Direction.ASC)
             Pageable pageable) {
-        List<BookResponseDto> foundBooks = bookService.findAll(pageable);
+        CustomData<BookResponseDto, PageMetadata> booksData = bookService.findAll(pageable);
 
         logger.info("Libros encontrados.");
 
         return ResponseHandler.sendResponse(
-                HttpStatus.OK, "Found books!", foundBooks
+                HttpStatus.OK, "Found books!", booksData.getData(), booksData.getMetadata()
         );
     }
 
@@ -120,7 +120,7 @@ public class BookController {
         logger.info("Libro eliminado. ID: {}", id);
 
         return ResponseHandler.sendResponse(
-                HttpStatus.OK, "Deleted book!", null
+                HttpStatus.OK, "Deleted book!"
         );
     }
 }

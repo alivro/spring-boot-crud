@@ -7,6 +7,8 @@ import com.alivro.spring.crud.model.book.request.BookSaveRequestDto;
 import com.alivro.spring.crud.model.book.response.BookResponseDto;
 import com.alivro.spring.crud.repository.BookRepository;
 import com.alivro.spring.crud.service.IBookService;
+import com.alivro.spring.crud.util.CustomData;
+import com.alivro.spring.crud.util.PageMetadata;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,14 +40,29 @@ public class IBookServiceImpl implements IBookService {
      * @return Información de todos los libros
      */
     @Override
-    public List<BookResponseDto> findAll(Pageable pageable) {
+    public CustomData<BookResponseDto, PageMetadata> findAll(Pageable pageable) {
         logger.info("Busca todos los libros.");
 
-        Page<Book> foundBooks = bookRepository.findAll(pageable);
+        Page<Book> booksPage = bookRepository.findAll(pageable);
 
-        return foundBooks.stream()
+        // Información de los libros
+        List<BookResponseDto> foundBooks = booksPage.stream()
                 .map(BookResponseDto::mapEntityToResponseDto)
                 .toList();
+
+        // Metadatos
+        PageMetadata metadata = PageMetadata.builder()
+                .pageNumber(booksPage.getNumber())
+                .pageSize(booksPage.getSize())
+                .numberOfElements(booksPage.getNumberOfElements())
+                .totalPages(booksPage.getTotalPages())
+                .totalElements(booksPage.getTotalElements())
+                .build();
+
+        return CustomData.<BookResponseDto, PageMetadata>builder()
+                .data(foundBooks)
+                .metadata(metadata)
+                .build();
     }
 
     /**
