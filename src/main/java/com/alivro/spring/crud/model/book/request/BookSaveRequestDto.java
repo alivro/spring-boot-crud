@@ -30,6 +30,7 @@ public class BookSaveRequestDto {
     private String subtitle;
 
     @Valid
+    @NotNull(message = "El campo autor(es) es obligatorio.")
     private List<AuthorOfBookRequestDto> authors;
 
     @Positive(message = "El campo total de páginas debe ser un número positivo.")

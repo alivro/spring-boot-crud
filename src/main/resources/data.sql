@@ -1,5 +1,5 @@
 INSERT INTO author (author_id, first_name, middle_name, last_name, pseudonym) VALUES
-  (1, 'Eric', 'Arthur', 'Blair', 'George Orwell'),
+  (1, 'Eric', null, 'Blair', 'George Orwell'),
   (2, 'Herbert', 'George', 'Wells', 'H. G. Wells'),
   (3, 'Aldous', 'Leonard', 'Huxley', 'Aldous Huxley'),
   (4, 'Charles', 'Lutwidge', 'Dodgson' ,'Lewis Carroll'),
@@ -13,7 +13,7 @@ INSERT INTO author (author_id, first_name, middle_name, last_name, pseudonym) VA
   (12, 'Alice', null, 'Zhao' ,'Alice Zhao');
 
 INSERT INTO book (book_id, title, subtitle, total_pages, publisher, published_date, isbn_13, isbn_10) VALUES
-  (1, '1984', '75th Anniversary', 384, 'Berkley', '2003-05-06', '9780452284234', null),
+  (1, '1984', null, 384, 'Berkley', '2003-05-06', '9780452284234', null),
   (2, 'Animal Farm', '75th Anniversary', 128, 'Berkley', '2003-05-06', '9780452284241', null),
   (3, 'The Invisible Man', 'A Grotesque Romance', 208, 'Melville House', '2014-07-29', '9781612193236', null),
   (4, 'The Time Machine', null, 128, 'Penguin Classics', '2005-05-31', '9780141439976', null),
