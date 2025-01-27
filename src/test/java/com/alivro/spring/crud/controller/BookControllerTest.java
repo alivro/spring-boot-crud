@@ -8,7 +8,7 @@ import com.alivro.spring.crud.model.book.response.AuthorOfBookResponseDto;
 import com.alivro.spring.crud.model.book.response.BookResponseDto;
 import com.alivro.spring.crud.service.IBookService;
 import com.alivro.spring.crud.util.CustomData;
-import com.alivro.spring.crud.util.PageMetadata;
+import com.alivro.spring.crud.util.CustomPageMetadata;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.hamcrest.CoreMatchers;
 import org.junit.jupiter.api.BeforeAll;
@@ -158,7 +158,7 @@ public class BookControllerTest {
         foundBooks.add(bookResponseReptileRoom);
         foundBooks.add(bookResponseWideWindow);
 
-        PageMetadata metadata = PageMetadata.builder()
+        CustomPageMetadata metadata = CustomPageMetadata.builder()
                 .pageNumber(pageNumber)
                 .pageSize(pageSize)
                 .numberOfElements(foundBooks.size())
@@ -167,7 +167,7 @@ public class BookControllerTest {
                 .build();
 
         given(bookService.findAll(pageable)).willReturn(
-                CustomData.<BookResponseDto, PageMetadata>builder()
+                CustomData.<BookResponseDto, CustomPageMetadata>builder()
                         .data(foundBooks)
                         .metadata(metadata)
                         .build()
@@ -223,7 +223,7 @@ public class BookControllerTest {
         foundBooks.add(bookResponseMiserableMill);
         foundBooks.add(bookResponseBadBeginning);
 
-        PageMetadata metadata = PageMetadata.builder()
+        CustomPageMetadata metadata = CustomPageMetadata.builder()
                 .pageNumber(pageNumber)
                 .pageSize(pageSize)
                 .numberOfElements(foundBooks.size())
@@ -232,7 +232,7 @@ public class BookControllerTest {
                 .build();
 
         given(bookService.findAll(pageable)).willReturn(
-                CustomData.<BookResponseDto, PageMetadata>builder()
+                CustomData.<BookResponseDto, CustomPageMetadata>builder()
                         .data(foundBooks)
                         .metadata(metadata)
                         .build()
@@ -284,7 +284,7 @@ public class BookControllerTest {
 
         List<BookResponseDto> foundBooks = new ArrayList<>();
 
-        PageMetadata metadata = PageMetadata.builder()
+        CustomPageMetadata metadata = CustomPageMetadata.builder()
                 .pageNumber(pageNumber)
                 .pageSize(pageSize)
                 .numberOfElements(foundBooks.size())
@@ -293,7 +293,7 @@ public class BookControllerTest {
                 .build();
 
         given(bookService.findAll(pageable)).willReturn(
-                CustomData.<BookResponseDto, PageMetadata>builder()
+                CustomData.<BookResponseDto, CustomPageMetadata>builder()
                         .data(foundBooks)
                         .metadata(metadata)
                         .build()

@@ -9,7 +9,7 @@ import com.alivro.spring.crud.model.book.request.BookSaveRequestDto;
 import com.alivro.spring.crud.model.book.response.BookResponseDto;
 import com.alivro.spring.crud.repository.BookRepository;
 import com.alivro.spring.crud.util.CustomData;
-import com.alivro.spring.crud.util.PageMetadata;
+import com.alivro.spring.crud.util.CustomPageMetadata;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -166,13 +166,13 @@ public class IBookServiceImplTest {
         );
 
         // When
-        CustomData<BookResponseDto, PageMetadata> booksData = bookService.findAll(
+        CustomData<BookResponseDto, CustomPageMetadata> booksData = bookService.findAll(
                 PageRequest.of(0, 5, Sort.by("subtitle").ascending())
         );
 
         // Then
         List<BookResponseDto> data = booksData.getData();
-        PageMetadata meta = booksData.getMetadata();
+        CustomPageMetadata meta = booksData.getMetadata();
 
         assertThat(data.size()).isEqualTo(4);
         assertThat(data.get(0).getSubtitle()).isEqualTo("The Bad Beginning");
@@ -208,13 +208,13 @@ public class IBookServiceImplTest {
                 new PageImpl<>(books, pageable, books.size())
         );
 
-        CustomData<BookResponseDto, PageMetadata> booksData = bookService.findAll(
+        CustomData<BookResponseDto, CustomPageMetadata> booksData = bookService.findAll(
                 PageRequest.of(0, 5, Sort.by("subtitle").descending())
         );
 
         // Then
         List<BookResponseDto> data = booksData.getData();
-        PageMetadata meta = booksData.getMetadata();
+        CustomPageMetadata meta = booksData.getMetadata();
 
         assertThat(data.size()).isEqualTo(4);
         assertThat(data.get(0).getSubtitle()).isEqualTo("The Wide Window");
@@ -247,13 +247,13 @@ public class IBookServiceImplTest {
         );
 
         // When
-        CustomData<BookResponseDto, PageMetadata> booksData = bookService.findAll(
+        CustomData<BookResponseDto, CustomPageMetadata> booksData = bookService.findAll(
                 PageRequest.of(0, 5, Sort.by("id").ascending())
         );
 
         // Then
         List<BookResponseDto> data = booksData.getData();
-        PageMetadata meta = booksData.getMetadata();
+        CustomPageMetadata meta = booksData.getMetadata();
 
         assertThat(data.size()).isEqualTo(0);
 

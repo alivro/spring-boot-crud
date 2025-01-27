@@ -3,7 +3,7 @@ package com.alivro.spring.crud.service;
 import com.alivro.spring.crud.model.book.request.BookSaveRequestDto;
 import com.alivro.spring.crud.model.book.response.BookResponseDto;
 import com.alivro.spring.crud.util.CustomData;
-import com.alivro.spring.crud.util.PageMetadata;
+import com.alivro.spring.crud.util.CustomPageMetadata;
 import org.springframework.data.domain.Pageable;
 
 public interface IBookService {
@@ -12,7 +12,7 @@ public interface IBookService {
      *
      * @return Información de todos los libros
      */
-    CustomData<BookResponseDto, PageMetadata> findAll(Pageable pageable);
+    CustomData<BookResponseDto, CustomPageMetadata> findAll(Pageable pageable);
 
     /**
      * Método para buscar un libro por su ID

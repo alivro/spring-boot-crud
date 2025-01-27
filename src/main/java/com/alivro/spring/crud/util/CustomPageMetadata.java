@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class PageMetadata {
+public class CustomPageMetadata {
     // Número de página
     private int pageNumber;
     // Tamaño de la página

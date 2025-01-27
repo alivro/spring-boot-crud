@@ -8,6 +8,7 @@ import com.alivro.spring.crud.model.book.request.BookSaveRequestDto;
 import com.alivro.spring.crud.model.book.response.AuthorOfBookResponseDto;
 import com.alivro.spring.crud.model.book.response.BookResponseDto;
 import com.alivro.spring.crud.util.CustomErrorResponse;
+import com.alivro.spring.crud.util.CustomPageMetadata;
 import com.alivro.spring.crud.util.CustomResponse;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -24,7 +25,6 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.time.LocalDate;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Objects;
 
@@ -138,7 +138,7 @@ public class BookControllerIT {
         // When
         String url = "/findAll";
 
-        ResponseEntity<CustomResponse<BookResponseDto>> response = restTemplate.exchange(
+        ResponseEntity<CustomResponse<BookResponseDto, CustomPageMetadata>> response = restTemplate.exchange(
                 createUrl(url),
                 HttpMethod.GET,
                 new HttpEntity<>(headers),
@@ -148,16 +148,16 @@ public class BookControllerIT {
 
         // Then
         List<BookResponseDto> books = Objects.requireNonNull(response.getBody()).getData();
-        HashMap metadata = (HashMap) response.getBody().getMetadata();
+        CustomPageMetadata metadata = response.getBody().getMetadata();
 
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
         assertThat(response.getBody().getMessage()).isEqualTo("Found books!");
 
         assertThat(books.size()).isGreaterThan(0);
 
-        assertThat(metadata.get("pageNumber")).isEqualTo(0);
-        assertThat(metadata.get("pageSize")).isEqualTo(5);
-        assertThat(metadata.get("numberOfElements")).isEqualTo(books.size());
+        assertThat(metadata.getPageNumber()).isEqualTo(0);
+        assertThat(metadata.getPageSize()).isEqualTo(5);
+        assertThat(metadata.getNumberOfElements()).isEqualTo(books.size());
     }
 
     @Test
@@ -166,7 +166,7 @@ public class BookControllerIT {
         // When
         String url = "/find/1";
 
-        ResponseEntity<CustomResponse<BookResponseDto>> response = restTemplate.exchange(
+        ResponseEntity<CustomResponse<BookResponseDto, Void>> response = restTemplate.exchange(
                 createUrl(url),
                 HttpMethod.GET,
                 new HttpEntity<>(headers),
@@ -197,7 +197,7 @@ public class BookControllerIT {
         // When
         String url = "/find/1000";
 
-        ResponseEntity<CustomErrorResponse> response = restTemplate.exchange(
+        ResponseEntity<CustomErrorResponse<Void>> response = restTemplate.exchange(
                 createUrl(url),
                 HttpMethod.GET,
                 new HttpEntity<>(headers),
@@ -217,7 +217,7 @@ public class BookControllerIT {
         // When
         String url = "/find/one";
 
-        ResponseEntity<CustomErrorResponse> response = restTemplate.exchange(
+        ResponseEntity<CustomErrorResponse<Void>> response = restTemplate.exchange(
                 createUrl(url),
                 HttpMethod.GET,
                 new HttpEntity<>(headers),
@@ -236,7 +236,7 @@ public class BookControllerIT {
         String url = "/save";
         String request = objectMapper.writeValueAsString(bookSaveRequestSQLGuide);
 
-        ResponseEntity<CustomResponse<BookResponseDto>> response = restTemplate.exchange(
+        ResponseEntity<CustomResponse<BookResponseDto, Void>> response = restTemplate.exchange(
                 createUrl(url),
                 HttpMethod.POST,
                 new HttpEntity<>(request, headers),
@@ -264,11 +264,12 @@ public class BookControllerIT {
         String url = "/save";
         String request = objectMapper.writeValueAsString(bookSaveRequest1984);
 
-        ResponseEntity<CustomErrorResponse> response = restTemplate.exchange(
+        ResponseEntity<CustomErrorResponse<Void>> response = restTemplate.exchange(
                 createUrl(url),
                 HttpMethod.POST,
                 new HttpEntity<>(request, headers),
-                CustomErrorResponse.class
+                new ParameterizedTypeReference<>() {
+                }
         );
 
         // Then
@@ -283,7 +284,7 @@ public class BookControllerIT {
         // When
         String url = "/update/1";
 
-        ResponseEntity<CustomResponse<BookResponseDto>> response = restTemplate.exchange(
+        ResponseEntity<CustomResponse<BookResponseDto, Void>> response = restTemplate.exchange(
                 createUrl(url),
                 HttpMethod.PUT,
                 new HttpEntity<>(
@@ -314,7 +315,7 @@ public class BookControllerIT {
         String url = "/update/10001";
         String request = objectMapper.writeValueAsString(bookUpdateRequestSQLGuide);
 
-        ResponseEntity<CustomErrorResponse> response = restTemplate.exchange(
+        ResponseEntity<CustomErrorResponse<Void>> response = restTemplate.exchange(
                 createUrl(url),
                 HttpMethod.PUT,
                 new HttpEntity<>(request, headers),
@@ -334,7 +335,7 @@ public class BookControllerIT {
         // When
         String url = "/delete/1";
 
-        ResponseEntity<CustomResponse<BookResponseDto>> response = restTemplate.exchange(
+        ResponseEntity<CustomResponse<BookResponseDto, Void>> response = restTemplate.exchange(
                 createUrl(url),
                 HttpMethod.DELETE,
                 new HttpEntity<>(headers),

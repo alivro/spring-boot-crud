@@ -8,7 +8,7 @@ import com.alivro.spring.crud.model.author.response.AuthorSaveResponseDto;
 import com.alivro.spring.crud.model.author.response.BookOfAuthorResponseDto;
 import com.alivro.spring.crud.service.IAuthorService;
 import com.alivro.spring.crud.util.CustomData;
-import com.alivro.spring.crud.util.PageMetadata;
+import com.alivro.spring.crud.util.CustomPageMetadata;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.hamcrest.CoreMatchers;
 import org.junit.jupiter.api.BeforeAll;
@@ -168,7 +168,7 @@ public class AuthorControllerTest {
         foundAuthors.add(authorResponseHGWells);
         foundAuthors.add(authorResponseLewisCarroll);
 
-        PageMetadata metadata = PageMetadata.builder()
+        CustomPageMetadata metadata = CustomPageMetadata.builder()
                 .pageNumber(pageNumber)
                 .pageSize(pageSize)
                 .numberOfElements(foundAuthors.size())
@@ -177,7 +177,7 @@ public class AuthorControllerTest {
                 .build();
 
         given(authorService.findAll(pageable)).willReturn(
-                CustomData.<AuthorFindResponseDto, PageMetadata>builder()
+                CustomData.<AuthorFindResponseDto, CustomPageMetadata>builder()
                         .data(foundAuthors)
                         .metadata(metadata)
                         .build()
@@ -233,7 +233,7 @@ public class AuthorControllerTest {
         foundAuthors.add(authorResponseGeorgeOrwell);
         foundAuthors.add(authorResponseAldousHuxley);
 
-        PageMetadata metadata = PageMetadata.builder()
+        CustomPageMetadata metadata = CustomPageMetadata.builder()
                 .pageNumber(pageNumber)
                 .pageSize(pageSize)
                 .numberOfElements(foundAuthors.size())
@@ -242,7 +242,7 @@ public class AuthorControllerTest {
                 .build();
 
         given(authorService.findAll(pageable)).willReturn(
-                CustomData.<AuthorFindResponseDto, PageMetadata>builder()
+                CustomData.<AuthorFindResponseDto, CustomPageMetadata>builder()
                         .data(foundAuthors)
                         .metadata(metadata)
                         .build()
@@ -294,7 +294,7 @@ public class AuthorControllerTest {
 
         List<AuthorFindResponseDto> foundAuthors = new ArrayList<>();
 
-        PageMetadata metadata = PageMetadata.builder()
+        CustomPageMetadata metadata = CustomPageMetadata.builder()
                 .pageNumber(pageNumber)
                 .pageSize(pageSize)
                 .numberOfElements(foundAuthors.size())
@@ -303,7 +303,7 @@ public class AuthorControllerTest {
                 .build();
 
         given(authorService.findAll(pageable)).willReturn(
-                CustomData.<AuthorFindResponseDto, PageMetadata>builder()
+                CustomData.<AuthorFindResponseDto, CustomPageMetadata>builder()
                         .data(foundAuthors)
                         .metadata(metadata)
                         .build()

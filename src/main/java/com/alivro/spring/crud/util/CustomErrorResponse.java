@@ -11,7 +11,7 @@ import java.sql.Timestamp;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class CustomErrorResponse {
+public class CustomErrorResponse<S> {
     // Código de estado HTTP
     private int status;
     // Mensaje de error
@@ -21,5 +21,5 @@ public class CustomErrorResponse {
     // Marca de tiempo
     private Timestamp timestamp;
     // Metadatos
-    private Object metadata;
+    private S metadata;
 }

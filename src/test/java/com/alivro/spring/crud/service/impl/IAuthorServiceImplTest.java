@@ -9,7 +9,7 @@ import com.alivro.spring.crud.model.author.response.AuthorFindResponseDto;
 import com.alivro.spring.crud.model.author.response.AuthorSaveResponseDto;
 import com.alivro.spring.crud.repository.AuthorRepository;
 import com.alivro.spring.crud.util.CustomData;
-import com.alivro.spring.crud.util.PageMetadata;
+import com.alivro.spring.crud.util.CustomPageMetadata;
 import org.hamcrest.MatcherAssert;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -178,13 +178,13 @@ public class IAuthorServiceImplTest {
         );
 
         // When
-        CustomData<AuthorFindResponseDto, PageMetadata> authorsData = authorService.findAll(
+        CustomData<AuthorFindResponseDto, CustomPageMetadata> authorsData = authorService.findAll(
                 PageRequest.of(0, 5, Sort.by("pseudonym").ascending())
         );
 
         // Then
         List<AuthorFindResponseDto> data = authorsData.getData();
-        PageMetadata meta = authorsData.getMetadata();
+        CustomPageMetadata meta = authorsData.getMetadata();
 
         assertThat(data.size()).isEqualTo(4);
         assertThat(data.get(0).getPseudonym()).isEqualTo("Aldous Huxley");
@@ -221,13 +221,13 @@ public class IAuthorServiceImplTest {
         );
 
         // When
-        CustomData<AuthorFindResponseDto, PageMetadata> authorsData = authorService.findAll(
+        CustomData<AuthorFindResponseDto, CustomPageMetadata> authorsData = authorService.findAll(
                 PageRequest.of(0, 5, Sort.by("pseudonym").descending())
         );
 
         // Then
         List<AuthorFindResponseDto> data = authorsData.getData();
-        PageMetadata meta = authorsData.getMetadata();
+        CustomPageMetadata meta = authorsData.getMetadata();
 
         assertThat(data.size()).isEqualTo(4);
         assertThat(data.get(0).getPseudonym()).isEqualTo("Lewis Carroll");
@@ -259,13 +259,13 @@ public class IAuthorServiceImplTest {
         );
 
         // When
-        CustomData<AuthorFindResponseDto, PageMetadata> authorsData = authorService.findAll(
+        CustomData<AuthorFindResponseDto, CustomPageMetadata> authorsData = authorService.findAll(
                 PageRequest.of(0, 5, Sort.by("id").ascending())
         );
 
         // Then
         List<AuthorFindResponseDto> data = authorsData.getData();
-        PageMetadata meta = authorsData.getMetadata();
+        CustomPageMetadata meta = authorsData.getMetadata();
 
         assertThat(data.size()).isEqualTo(0);
 

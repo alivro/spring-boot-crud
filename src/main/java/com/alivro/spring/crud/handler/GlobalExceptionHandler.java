@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 @ControllerAdvice
 public class GlobalExceptionHandler {
     @ExceptionHandler(DataNotFoundException.class)
-    public ResponseEntity<CustomErrorResponse> handleDataNotFoundException(
+    public ResponseEntity<CustomErrorResponse<Void>> handleDataNotFoundException(
             DataNotFoundException ex, HttpServletRequest request) {
         return ResponseHandler.sendErrorResponse(
                 HttpStatus.NOT_FOUND, ex.getMessage(), request.getRequestURI()
@@ -20,7 +20,7 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(DataAlreadyExistsException.class)
-    public ResponseEntity<CustomErrorResponse> handleDataAlreadyExistsException(
+    public ResponseEntity<CustomErrorResponse<Void>> handleDataAlreadyExistsException(
             DataAlreadyExistsException ex, HttpServletRequest request) {
         return ResponseHandler.sendErrorResponse(
                 HttpStatus.CONFLICT, ex.getMessage(), request.getRequestURI()
@@ -28,7 +28,7 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(RuntimeException.class)
-    public ResponseEntity<CustomErrorResponse> handleRuntimeException(
+    public ResponseEntity<CustomErrorResponse<Void>> handleRuntimeException(
             RuntimeException ex, HttpServletRequest request) {
         return ResponseHandler.sendErrorResponse(
                 HttpStatus.INTERNAL_SERVER_ERROR, ex.getMessage(), request.getRequestURI()

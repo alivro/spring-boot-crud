@@ -5,8 +5,8 @@ import com.alivro.spring.crud.model.book.request.BookSaveRequestDto;
 import com.alivro.spring.crud.model.book.response.BookResponseDto;
 import com.alivro.spring.crud.service.IBookService;
 import com.alivro.spring.crud.util.CustomData;
+import com.alivro.spring.crud.util.CustomPageMetadata;
 import com.alivro.spring.crud.util.CustomResponse;
-import com.alivro.spring.crud.util.PageMetadata;
 import jakarta.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -41,10 +41,10 @@ public class BookController {
      * @return Información de todos los libros
      */
     @GetMapping("/findAll")
-    public ResponseEntity<CustomResponse<BookResponseDto>> findAllBooks(
+    public ResponseEntity<CustomResponse<BookResponseDto, CustomPageMetadata>> findAllBooks(
             @PageableDefault(page = 0, size = 5, sort = "id", direction = Sort.Direction.ASC)
             Pageable pageable) {
-        CustomData<BookResponseDto, PageMetadata> booksData = bookService.findAll(pageable);
+        CustomData<BookResponseDto, CustomPageMetadata> booksData = bookService.findAll(pageable);
 
         logger.info("Libros encontrados.");
 
@@ -60,7 +60,7 @@ public class BookController {
      * @return Información del libro buscado
      */
     @GetMapping("/find/{id}")
-    public ResponseEntity<CustomResponse<BookResponseDto>> findBook(@PathVariable("id") long id) {
+    public ResponseEntity<CustomResponse<BookResponseDto, Void>> findBook(@PathVariable("id") long id) {
         BookResponseDto foundBook = bookService.findById(id);
 
         logger.info("Libro encontrado. ID: {}", id);
@@ -77,7 +77,7 @@ public class BookController {
      * @return Información del libro guardado
      */
     @PostMapping("/save")
-    public ResponseEntity<CustomResponse<BookResponseDto>> saveBook(
+    public ResponseEntity<CustomResponse<BookResponseDto, Void>> saveBook(
             @Valid @RequestBody BookSaveRequestDto book) {
         BookResponseDto savedBook = bookService.save(book);
 
@@ -96,7 +96,7 @@ public class BookController {
      * @return Información del libro actualizado
      */
     @PutMapping("/update/{id}")
-    public ResponseEntity<CustomResponse<BookResponseDto>> updateBook(
+    public ResponseEntity<CustomResponse<BookResponseDto, Void>> updateBook(
             @PathVariable("id") long id, @Valid @RequestBody BookSaveRequestDto book) {
         BookResponseDto updatedBook = bookService.update(id, book);
 
@@ -114,7 +114,7 @@ public class BookController {
      * @return Estatus 200
      */
     @DeleteMapping("/delete/{id}")
-    public ResponseEntity<CustomResponse<BookResponseDto>> deleteBook(@PathVariable("id") long id) {
+    public ResponseEntity<CustomResponse<BookResponseDto, Void>> deleteBook(@PathVariable("id") long id) {
         bookService.deleteById(id);
 
         logger.info("Libro eliminado. ID: {}", id);

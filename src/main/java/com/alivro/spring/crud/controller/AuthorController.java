@@ -6,8 +6,8 @@ import com.alivro.spring.crud.model.author.response.AuthorFindResponseDto;
 import com.alivro.spring.crud.model.author.response.AuthorSaveResponseDto;
 import com.alivro.spring.crud.service.IAuthorService;
 import com.alivro.spring.crud.util.CustomData;
+import com.alivro.spring.crud.util.CustomPageMetadata;
 import com.alivro.spring.crud.util.CustomResponse;
-import com.alivro.spring.crud.util.PageMetadata;
 import jakarta.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -42,10 +42,10 @@ public class AuthorController {
      * @return Información de todos los autores
      */
     @GetMapping("/findAll")
-    public ResponseEntity<CustomResponse<AuthorFindResponseDto>> findAllAuthors(
+    public ResponseEntity<CustomResponse<AuthorFindResponseDto, CustomPageMetadata>> findAllAuthors(
             @PageableDefault(page = 0, size = 5, sort = "id", direction = Sort.Direction.ASC)
             Pageable pageable) {
-        CustomData<AuthorFindResponseDto, PageMetadata> authorsData = authorService.findAll(pageable);
+        CustomData<AuthorFindResponseDto, CustomPageMetadata> authorsData = authorService.findAll(pageable);
 
         logger.info("Autores encontrados.");
 
@@ -61,7 +61,7 @@ public class AuthorController {
      * @return Información del autor buscado
      */
     @GetMapping("/find/{id}")
-    public ResponseEntity<CustomResponse<AuthorFindResponseDto>> findAuthor(@PathVariable("id") long id) {
+    public ResponseEntity<CustomResponse<AuthorFindResponseDto, Void>> findAuthor(@PathVariable("id") long id) {
         AuthorFindResponseDto foundAuthor = authorService.findById(id);
 
         logger.info("Autor encontrado. ID: {}", id);
@@ -78,7 +78,7 @@ public class AuthorController {
      * @return Información del autor guardado
      */
     @PostMapping("/save")
-    public ResponseEntity<CustomResponse<AuthorSaveResponseDto>> saveAuthor(
+    public ResponseEntity<CustomResponse<AuthorSaveResponseDto, Void>> saveAuthor(
             @Valid @RequestBody AuthorSaveRequestDto author) {
         AuthorSaveResponseDto savedAuthor = authorService.save(author);
 
@@ -97,7 +97,7 @@ public class AuthorController {
      * @return Información del autor actualizado
      */
     @PutMapping("/update/{id}")
-    public ResponseEntity<CustomResponse<AuthorSaveResponseDto>> updateAuthor(
+    public ResponseEntity<CustomResponse<AuthorSaveResponseDto, Void>> updateAuthor(
             @PathVariable("id") long id, @Valid @RequestBody AuthorSaveRequestDto author) {
         AuthorSaveResponseDto updatedAuthor = authorService.update(id, author);
 
@@ -115,7 +115,7 @@ public class AuthorController {
      * @return Estatus 200
      */
     @DeleteMapping("/delete/{id}")
-    public ResponseEntity<CustomResponse<AuthorSaveResponseDto>> deleteAuthor(@PathVariable("id") long id) {
+    public ResponseEntity<CustomResponse<AuthorSaveResponseDto, Void>> deleteAuthor(@PathVariable("id") long id) {
         authorService.deleteById(id);
 
         logger.info("Autor eliminado. ID: {}", id);

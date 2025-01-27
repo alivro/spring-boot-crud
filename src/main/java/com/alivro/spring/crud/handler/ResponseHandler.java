@@ -22,9 +22,9 @@ public class ResponseHandler {
      * @param metadata Metadatos
      * @return Respuesta HTTP
      */
-    public static <T> ResponseEntity<CustomResponse<T>> sendResponse(
-            HttpStatus status, String message, List<T> data, Object metadata) {
-        CustomResponse<T> response = CustomResponse.<T>builder()
+    public static <T, S> ResponseEntity<CustomResponse<T, S>> sendResponse(
+            HttpStatus status, String message, List<T> data, S metadata) {
+        CustomResponse<T, S> response = CustomResponse.<T, S>builder()
                 .status(status.value())
                 .message(message)
                 .data(data)
@@ -42,7 +42,7 @@ public class ResponseHandler {
      * @param data    Objeto
      * @return Respuesta HTTP
      */
-    public static <T> ResponseEntity<CustomResponse<T>> sendResponse(
+    public static <T, S> ResponseEntity<CustomResponse<T, S>> sendResponse(
             HttpStatus status, String message, T data) {
         return sendResponse(status, message, Collections.singletonList(data), null);
     }
@@ -54,7 +54,7 @@ public class ResponseHandler {
      * @param message Mensaje
      * @return Respuesta HTTP
      */
-    public static <T> ResponseEntity<CustomResponse<T>> sendResponse(
+    public static <T, S> ResponseEntity<CustomResponse<T, S>> sendResponse(
             HttpStatus status, String message) {
         return sendResponse(status, message, null, null);
     }
@@ -68,9 +68,9 @@ public class ResponseHandler {
      * @param metadata Metadatos
      * @return Respuesta HTTP
      */
-    public static ResponseEntity<CustomErrorResponse> sendErrorResponse(
-            HttpStatus status, String error, String path, Object metadata) {
-        CustomErrorResponse response = CustomErrorResponse.builder()
+    public static <S> ResponseEntity<CustomErrorResponse<S>> sendErrorResponse(
+            HttpStatus status, String error, String path, S metadata) {
+        CustomErrorResponse<S> response = CustomErrorResponse.<S>builder()
                 .status(status.value())
                 .error(error)
                 .path(path)
@@ -89,7 +89,7 @@ public class ResponseHandler {
      * @param path   URL de la solicitud
      * @return Respuesta HTTP
      */
-    public static ResponseEntity<CustomErrorResponse> sendErrorResponse(
+    public static <S> ResponseEntity<CustomErrorResponse<S>> sendErrorResponse(
             HttpStatus status, String error, String path) {
         return sendErrorResponse(status, error, path, null);
     }

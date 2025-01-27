@@ -4,7 +4,7 @@ import com.alivro.spring.crud.model.author.request.AuthorSaveRequestDto;
 import com.alivro.spring.crud.model.author.response.AuthorFindResponseDto;
 import com.alivro.spring.crud.model.author.response.AuthorSaveResponseDto;
 import com.alivro.spring.crud.util.CustomData;
-import com.alivro.spring.crud.util.PageMetadata;
+import com.alivro.spring.crud.util.CustomPageMetadata;
 import org.springframework.data.domain.Pageable;
 
 public interface IAuthorService {
@@ -13,7 +13,7 @@ public interface IAuthorService {
      *
      * @return Información de todos los autores
      */
-    CustomData<AuthorFindResponseDto, PageMetadata> findAll(Pageable pageable);
+    CustomData<AuthorFindResponseDto, CustomPageMetadata> findAll(Pageable pageable);
 
     /**
      * Método para buscar un autor por su ID

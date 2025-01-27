@@ -8,6 +8,7 @@ import com.alivro.spring.crud.model.author.response.AuthorFindResponseDto;
 import com.alivro.spring.crud.model.author.response.AuthorSaveResponseDto;
 import com.alivro.spring.crud.model.author.response.BookOfAuthorResponseDto;
 import com.alivro.spring.crud.util.CustomErrorResponse;
+import com.alivro.spring.crud.util.CustomPageMetadata;
 import com.alivro.spring.crud.util.CustomResponse;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -24,7 +25,6 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.time.LocalDate;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Objects;
 
@@ -126,7 +126,7 @@ public class AuthorControllerIT {
         // When
         String url = "/findAll";
 
-        ResponseEntity<CustomResponse<AuthorFindResponseDto>> response = restTemplate.exchange(
+        ResponseEntity<CustomResponse<AuthorFindResponseDto, CustomPageMetadata>> response = restTemplate.exchange(
                 createUrl(url),
                 HttpMethod.GET,
                 new HttpEntity<>(headers),
@@ -136,16 +136,16 @@ public class AuthorControllerIT {
 
         // Then
         List<AuthorFindResponseDto> authors = Objects.requireNonNull(response.getBody()).getData();
-        HashMap metadata = (HashMap) response.getBody().getMetadata();
+        CustomPageMetadata metadata = response.getBody().getMetadata();
 
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
         assertThat(response.getBody().getMessage()).isEqualTo("Found authors!");
 
         assertThat(authors.size()).isGreaterThan(0);
 
-        assertThat(metadata.get("pageNumber")).isEqualTo(0);
-        assertThat(metadata.get("pageSize")).isEqualTo(5);
-        assertThat(metadata.get("numberOfElements")).isEqualTo(authors.size());
+        assertThat(metadata.getPageNumber()).isEqualTo(0);
+        assertThat(metadata.getPageSize()).isEqualTo(5);
+        assertThat(metadata.getNumberOfElements()).isEqualTo(authors.size());
     }
 
     @Test
@@ -154,7 +154,7 @@ public class AuthorControllerIT {
         // When
         String url = "/find/1";
 
-        ResponseEntity<CustomResponse<AuthorFindResponseDto>> response = restTemplate.exchange(
+        ResponseEntity<CustomResponse<AuthorFindResponseDto, Void>> response = restTemplate.exchange(
                 createUrl(url),
                 HttpMethod.GET,
                 new HttpEntity<>(headers),
@@ -186,7 +186,7 @@ public class AuthorControllerIT {
         // When
         String url = "/find/100";
 
-        ResponseEntity<CustomErrorResponse> response = restTemplate.exchange(
+        ResponseEntity<CustomErrorResponse<Void>> response = restTemplate.exchange(
                 createUrl(url),
                 HttpMethod.GET,
                 new HttpEntity<>(headers),
@@ -206,7 +206,7 @@ public class AuthorControllerIT {
         // When
         String url = "/find/one";
 
-        ResponseEntity<CustomErrorResponse> response = restTemplate.exchange(
+        ResponseEntity<CustomErrorResponse<Void>> response = restTemplate.exchange(
                 createUrl(url),
                 HttpMethod.GET,
                 new HttpEntity<>(headers),
@@ -225,7 +225,7 @@ public class AuthorControllerIT {
         String url = "/save";
         String request = objectMapper.writeValueAsString(authorSaveRequestJulesVerne);
 
-        ResponseEntity<CustomResponse<AuthorSaveResponseDto>> response = restTemplate.exchange(
+        ResponseEntity<CustomResponse<AuthorSaveResponseDto, Void>> response = restTemplate.exchange(
                 createUrl(url),
                 HttpMethod.POST,
                 new HttpEntity<>(request, headers),
@@ -253,11 +253,12 @@ public class AuthorControllerIT {
         String url = "/save";
         String request = objectMapper.writeValueAsString(authorSaveRequestGeorgeOrwell);
 
-        ResponseEntity<CustomErrorResponse> response = restTemplate.exchange(
+        ResponseEntity<CustomErrorResponse<Void>> response = restTemplate.exchange(
                 createUrl(url),
                 HttpMethod.POST,
                 new HttpEntity<>(request, headers),
-                CustomErrorResponse.class
+                new ParameterizedTypeReference<>() {
+                }
         );
 
         // Then
@@ -272,7 +273,7 @@ public class AuthorControllerIT {
         // When
         String url = "/update/1";
 
-        ResponseEntity<CustomResponse<AuthorSaveResponseDto>> response = restTemplate.exchange(
+        ResponseEntity<CustomResponse<AuthorSaveResponseDto, Void>> response = restTemplate.exchange(
                 createUrl(url),
                 HttpMethod.PUT,
                 new HttpEntity<>(
@@ -304,7 +305,7 @@ public class AuthorControllerIT {
         String url = "/update/1001";
         String request = objectMapper.writeValueAsString(authorUpdateRequestJulesVerne);
 
-        ResponseEntity<CustomErrorResponse> response = restTemplate.exchange(
+        ResponseEntity<CustomErrorResponse<Void>> response = restTemplate.exchange(
                 createUrl(url),
                 HttpMethod.PUT,
                 new HttpEntity<>(request, headers),
@@ -324,7 +325,7 @@ public class AuthorControllerIT {
         // When
         String url = "/delete/1";
 
-        ResponseEntity<CustomResponse<AuthorSaveResponseDto>> response = restTemplate.exchange(
+        ResponseEntity<CustomResponse<AuthorSaveResponseDto, Void>> response = restTemplate.exchange(
                 createUrl(url),
                 HttpMethod.DELETE,
                 new HttpEntity<>(headers),
