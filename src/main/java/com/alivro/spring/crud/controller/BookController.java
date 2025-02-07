@@ -19,7 +19,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/api/book")
+@RequestMapping("/api/v1/book")
 @CrossOrigin(origins = "http://localhost:8080")
 public class BookController {
     private final IBookService bookService;

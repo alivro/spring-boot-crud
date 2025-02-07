@@ -174,7 +174,7 @@ public class BookControllerTest {
         );
 
         // When
-        ResultActions response = mockMvc.perform(get("/api/book/findAll")
+        ResultActions response = mockMvc.perform(get("/api/v1/book/findAll")
                 .param("page", "0")
                 .param("size", "5")
                 .param("sort", "subtitle,asc")
@@ -239,7 +239,7 @@ public class BookControllerTest {
         );
 
         // When
-        ResultActions response = mockMvc.perform(get("/api/book/findAll")
+        ResultActions response = mockMvc.perform(get("/api/v1/book/findAll")
                 .param("page", "0")
                 .param("size", "5")
                 .param("sort", "subtitle,desc")
@@ -300,7 +300,7 @@ public class BookControllerTest {
         );
 
         // When
-        ResultActions response = mockMvc.perform(get("/api/book/findAll"));
+        ResultActions response = mockMvc.perform(get("/api/v1/book/findAll"));
 
         // Then
         response.andExpect(MockMvcResultMatchers.status().isOk())
@@ -329,7 +329,7 @@ public class BookControllerTest {
         given(bookService.findById(bookId)).willReturn(bookResponseBadBeginning);
 
         // When
-        ResultActions response = mockMvc.perform(get("/api/book/find/{id}", bookId));
+        ResultActions response = mockMvc.perform(get("/api/v1/book/find/{id}", bookId));
 
         // Then
         response.andExpect(MockMvcResultMatchers.status().isOk())
@@ -354,7 +354,7 @@ public class BookControllerTest {
                 willThrow(new DataNotFoundException("Book not found!"));
 
         // When
-        ResultActions response = mockMvc.perform(get("/api/book/find/{id}", bookId));
+        ResultActions response = mockMvc.perform(get("/api/v1/book/find/{id}", bookId));
 
         // Then
         response.andExpect(MockMvcResultMatchers.status().isNotFound())
@@ -368,7 +368,7 @@ public class BookControllerTest {
         String bookId = "one";
 
         // When
-        ResultActions response = mockMvc.perform(get("/api/book/find/{id}", bookId));
+        ResultActions response = mockMvc.perform(get("/api/v1/book/find/{id}", bookId));
 
         // Then
         response.andExpect(MockMvcResultMatchers.status().isInternalServerError());
@@ -381,7 +381,7 @@ public class BookControllerTest {
                 .willReturn(bookSavedResponseAustereAcademy);
 
         // When
-        ResultActions response = mockMvc.perform(post("/api/book/save")
+        ResultActions response = mockMvc.perform(post("/api/v1/book/save")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(bookSaveRequestAustereAcademy)));
 
@@ -406,7 +406,7 @@ public class BookControllerTest {
                 willThrow(new DataAlreadyExistsException("Book already exists!"));
 
         // When
-        ResultActions response = mockMvc.perform(post("/api/book/save")
+        ResultActions response = mockMvc.perform(post("/api/v1/book/save")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(bookSaveRequestAustereAcademy)));
 
@@ -425,7 +425,7 @@ public class BookControllerTest {
                 .willReturn(bookUpdatedResponseAustereAcademy);
 
         // When
-        ResultActions response = mockMvc.perform(put("/api/book/update/{id}", bookId)
+        ResultActions response = mockMvc.perform(put("/api/v1/book/update/{id}", bookId)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(bookUpdateRequestAustereAcademy)));
 
@@ -451,7 +451,7 @@ public class BookControllerTest {
         given(bookService.update(anyLong(), any(BookSaveRequestDto.class)))
                 .willThrow(new DataNotFoundException("Book does not exist!"));
         // When
-        ResultActions response = mockMvc.perform(put("/api/book/update/{id}", bookId)
+        ResultActions response = mockMvc.perform(put("/api/v1/book/update/{id}", bookId)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(bookUpdateRequestAustereAcademy)));
 
@@ -469,7 +469,7 @@ public class BookControllerTest {
         willDoNothing().given(bookService).deleteById(anyLong());
 
         // When
-        ResultActions response = mockMvc.perform(delete("/api/book/delete/{id}", bookId));
+        ResultActions response = mockMvc.perform(delete("/api/v1/book/delete/{id}", bookId));
 
         // Then
         response.andExpect(MockMvcResultMatchers.status().isOk());

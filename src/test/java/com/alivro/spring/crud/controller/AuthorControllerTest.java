@@ -184,7 +184,7 @@ public class AuthorControllerTest {
         );
 
         // When
-        ResultActions response = mockMvc.perform(get("/api/author/findAll")
+        ResultActions response = mockMvc.perform(get("/api/v1/author/findAll")
                 .param("page", "0")
                 .param("size", "5")
                 .param("sort", "pseudonym,asc")
@@ -249,7 +249,7 @@ public class AuthorControllerTest {
         );
 
         // When
-        ResultActions response = mockMvc.perform(get("/api/author/findAll")
+        ResultActions response = mockMvc.perform(get("/api/v1/author/findAll")
                 .param("page", "0")
                 .param("size", "5")
                 .param("sort", "pseudonym,desc")
@@ -310,7 +310,7 @@ public class AuthorControllerTest {
         );
 
         // When
-        ResultActions response = mockMvc.perform(get("/api/author/findAll"));
+        ResultActions response = mockMvc.perform(get("/api/v1/author/findAll"));
 
         // Then
         response.andExpect(MockMvcResultMatchers.status().isOk())
@@ -339,7 +339,7 @@ public class AuthorControllerTest {
         given(authorService.findById(authorId)).willReturn(authorResponseGeorgeOrwell);
 
         // When
-        ResultActions response = mockMvc.perform(get("/api/author/find/{id}", authorId));
+        ResultActions response = mockMvc.perform(get("/api/v1/author/find/{id}", authorId));
 
         // Then
         response.andExpect(MockMvcResultMatchers.status().isOk())
@@ -369,7 +369,7 @@ public class AuthorControllerTest {
                 .willThrow(new DataNotFoundException("Author not found!"));
 
         // When
-        ResultActions response = mockMvc.perform(get("/api/author/find/{id}", authorId));
+        ResultActions response = mockMvc.perform(get("/api/v1/author/find/{id}", authorId));
 
         // Then
         response.andExpect(MockMvcResultMatchers.status().isNotFound())
@@ -383,7 +383,7 @@ public class AuthorControllerTest {
         String authorId = "one";
 
         // When
-        ResultActions response = mockMvc.perform(get("/api/author/find/{id}", authorId));
+        ResultActions response = mockMvc.perform(get("/api/v1/author/find/{id}", authorId));
 
         // Then
         response.andExpect(MockMvcResultMatchers.status().isInternalServerError());
@@ -396,7 +396,7 @@ public class AuthorControllerTest {
                 .willReturn(authorSavedResponseVerne);
 
         // When
-        ResultActions response = mockMvc.perform(post("/api/author/save")
+        ResultActions response = mockMvc.perform(post("/api/v1/author/save")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(authorSaveRequestVerne)));
 
@@ -422,7 +422,7 @@ public class AuthorControllerTest {
                 .willThrow(new DataAlreadyExistsException("Author already exists!"));
 
         // When
-        ResultActions response = mockMvc.perform(post("/api/author/save")
+        ResultActions response = mockMvc.perform(post("/api/v1/author/save")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(authorSaveRequestVerne)));
 
@@ -441,7 +441,7 @@ public class AuthorControllerTest {
                 .willReturn(authorUpdatedResponseVerne);
 
         // When
-        ResultActions response = mockMvc.perform(put("/api/author/update/{id}", authorId)
+        ResultActions response = mockMvc.perform(put("/api/v1/author/update/{id}", authorId)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(authorUpdateRequestVerne)));
 
@@ -469,7 +469,7 @@ public class AuthorControllerTest {
                 .willThrow(new DataNotFoundException("Author does not exist!"));
 
         // When
-        ResultActions response = mockMvc.perform(put("/api/author/update/{id}", authorId)
+        ResultActions response = mockMvc.perform(put("/api/v1/author/update/{id}", authorId)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(authorUpdateRequestVerne)));
 
@@ -487,7 +487,7 @@ public class AuthorControllerTest {
         willDoNothing().given(authorService).deleteById(anyLong());
 
         // When
-        ResultActions response = mockMvc.perform(delete("/api/author/delete/{id}", authorId));
+        ResultActions response = mockMvc.perform(delete("/api/v1/author/delete/{id}", authorId));
 
         // Then
         response.andExpect(MockMvcResultMatchers.status().isOk())

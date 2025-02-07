@@ -20,7 +20,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/api/author")
+@RequestMapping("/api/v1/author")
 @CrossOrigin(origins = "http://localhost:8080")
 public class AuthorController {
     private final IAuthorService authorService;

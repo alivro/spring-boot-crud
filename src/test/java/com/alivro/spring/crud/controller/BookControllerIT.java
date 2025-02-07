@@ -350,6 +350,6 @@ public class BookControllerIT {
     }
 
     private String createUrl(String uri) {
-        return "http://localhost:" + port + "/api/book" + uri;
+        return "http://localhost:" + port + "/api/v1/book" + uri;
     }
 }

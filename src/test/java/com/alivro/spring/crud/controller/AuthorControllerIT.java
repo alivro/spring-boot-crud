@@ -340,6 +340,6 @@ public class AuthorControllerIT {
     }
 
     private String createUrl(String uri) {
-        return "http://localhost:" + port + "/api/author" + uri;
+        return "http://localhost:" + port + "/api/v1/author" + uri;
     }
 }
