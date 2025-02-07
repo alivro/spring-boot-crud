@@ -1,0 +1,135 @@
+{
+	"info": {
+		"_postman_id": "21f23c2c-1bf6-44f2-90bd-ba6e451a5d47",
+		"name": "Book",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "33249643"
+	},
+	"item": [
+		{
+			"name": "FindAll",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{url-api}}/book/findAll?page=0&size=2&sort=id,asc",
+					"host": [
+						"{{url-api}}"
+					],
+					"path": [
+						"book",
+						"findAll"
+					],
+					"query": [
+						{
+							"key": "page",
+							"value": "0"
+						},
+						{
+							"key": "size",
+							"value": "2"
+						},
+						{
+							"key": "sort",
+							"value": "id,asc"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "FindById",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{url-api}}/book/find/1001",
+					"host": [
+						"{{url-api}}"
+					],
+					"path": [
+						"book",
+						"find",
+						"1001"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Save",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"title\": \"SQL Pokcet Guide\",\n    \"subtitle\": \"A Guide to LQS Usage\",\n    \"authors\": [\n        {\n            \"id\": 12,\n            \"pseudonym\": \"Alice Zhao\"\n        }\n    ],\n    \"totalPages\": 354,\n    \"publisher\": \"O'Reilly Media\",\n    \"publishedDate\": \"2021-10-05\",\n    \"isbn13\": \"9781492090403\",\n    \"isbn10\": \"1492090409\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{url-api}}/book/save",
+					"host": [
+						"{{url-api}}"
+					],
+					"path": [
+						"book",
+						"save"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Update",
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"title\": \"SQL Pocket Guide\",\n    \"subtitle\": \"A Guide to SQL Usage\",\n    \"authors\": [\n        {\n            \"id\": 12,\n            \"pseudonym\": \"Alice Zhao\"\n        }\n    ],\n    \"totalPages\": 354,\n    \"publisher\": \"O'Reilly Media\",\n    \"publishedDate\": \"2021-10-05\",\n    \"isbn13\": \"9781492090403\",\n    \"isbn10\": \"1492090409\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{url-api}}/book/update/1001",
+					"host": [
+						"{{url-api}}"
+					],
+					"path": [
+						"book",
+						"update",
+						"1001"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "DeleteById",
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": "{{url-api}}/book/delete/1",
+					"host": [
+						"{{url-api}}"
+					],
+					"path": [
+						"book",
+						"delete",
+						"1"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}

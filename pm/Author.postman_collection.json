@@ -1,0 +1,135 @@
+{
+	"info": {
+		"_postman_id": "57abbec9-39f4-4199-a901-91b58880e850",
+		"name": "Author",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "33249643"
+	},
+	"item": [
+		{
+			"name": "FindAll",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{url-api}}/author/findAll?page=0&size=2&sort=id,asc",
+					"host": [
+						"{{url-api}}"
+					],
+					"path": [
+						"author",
+						"findAll"
+					],
+					"query": [
+						{
+							"key": "page",
+							"value": "0"
+						},
+						{
+							"key": "size",
+							"value": "2"
+						},
+						{
+							"key": "sort",
+							"value": "id,asc"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "FindById",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{url-api}}/author/find/12",
+					"host": [
+						"{{url-api}}"
+					],
+					"path": [
+						"author",
+						"find",
+						"12"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Save",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"firstName\": \"Jostein\",\n    \"lastName\": \"Garder\",\n    \"pseudonym\": \"Jostein Garder\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{url-api}}/author/save",
+					"host": [
+						"{{url-api}}"
+					],
+					"path": [
+						"author",
+						"save"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Update",
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"firstName\": \"Jostein\",\n    \"lastName\": \"Gaarder\",\n    \"pseudonym\": \"Jostein Gaarder\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{url-api}}/author/update/101",
+					"host": [
+						"{{url-api}}"
+					],
+					"path": [
+						"author",
+						"update",
+						"101"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "DeleteById",
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": "{{url-api}}/author/delete/1",
+					"host": [
+						"{{url-api}}"
+					],
+					"path": [
+						"author",
+						"delete",
+						"1"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
